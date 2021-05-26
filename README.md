@@ -18,7 +18,7 @@ To do this follow the steps below:
 
 # Run Appointment Webapp
 
-Once `requirements.txt` is installed and the database `backend.db` has been created, run the webapp:
+Once `requirements.txt` is installed, run the webapp:
 
 `$ python main.py`
 
