@@ -3,24 +3,70 @@
 {% endblock %} {% block body %}
 <div class="content">
   <h1 style="text-align: center">Appointments</h1>
-  <form action="/appointments/update/{{appointment.id}}" method="POST">
-    Client
-    <input type="text" name="client" value="{{appointment.client}}" /> Service
-    <select id="service" name="service" value="{{service}}">
-      {% for s in serviceList %}
-      <option value="{{s.id}}">{{s.name}}</option>
-      {% endfor %}
-    </select>
-    Employee
-    <select id="employee" name="employee" value="{{employee}}">
-      {% for e in employeeList %}
-      <option value="{{e.id}}">{{e.name}}</option>
-      {% endfor %}
-    </select>
-    Appointment <input type="date" name="appt_date" value="{{appt_date}}" />
-    <input type="time" name="appt_time" value="{{appt_time}}" />
-    Tip<input type="number" name="tip" value="{{appointment.tips}}" />
-    <input type="submit" />
+
+  <form action="/appointment/{{appointment.id}}" method="POST">
+    <div class="form-group">
+      <label for="clientName">Client Name</label>
+      <input
+        type="text"
+        class="form-control"
+        id="clientName"
+        value="{{appointment.client}}"
+      />
+    </div>
+    <div class="form-group">
+      <label for="service">Service</label>
+      {% if serviceList | length < 1 %}
+      <select multiple class="form-control" id="service" disabled></select>
+      {% else %}
+      <select multiple class="form-control" id="service" value="{{service}}">
+        {% for s in serviceList %}
+        <option value="{{s.id}}">{{s.name}}</option>
+        {% endfor %}
+      </select>
+      {% endif %}
+    </div>
+    <div class="form-group">
+      <label for="employee">Employee</label>
+      {% if employeeList | length < 1 %}
+      <select class="form-control" id="employee" disabled></select>
+      {% else %}
+      <select class="form-control" id="employee" value="{{employee}}">
+        {% for e in employeeList %}
+        <option value="{{e.id}}">{{e.name}}</option>
+        {% endfor %}
+      </select>
+      {% endif %}
+    </div>
+    <div class="form-group">
+      <label for="clientName">Appointment Date and Time</label>
+      <input
+        type="date"
+        class="form-control"
+        id="appt_date"
+        value="{{appt_date}}"
+      />
+      <input
+        type="time"
+        class="form-control"
+        id="appt_time"
+        value="{{appt_time}}"
+      />
+    </div>
+    <div class="form-group">
+      <label for="tip">Tip</label>
+      <input
+        type="number"
+        class="form-control"
+        id="tip"
+        value="{{appointment.tips}}"
+      />
+    </div>
+    <div class="form-group">
+      <label for="total">Total</label>
+      <input type="number" class="form-control" id="total" placeholder="0" />
+    </div>
+    <input type="submit" class="btn btn-primary mb-2" />
   </form>
 </div>
 {% endblock %}

@@ -7,7 +7,7 @@
             "previewLimit": 50,
             "driver": "SQLite",
             "name": "user",
-            "database": "${workspaceFolder:appointment_webapp}/website/backend.db"
+            "database": "${workspaceFolder:appointment_webapp}/website/database.db"
         }
     ],
     "sqltools.useNodeRuntime": true,

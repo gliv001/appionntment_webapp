@@ -1,36 +1,48 @@
-body, html {
-    margin: 0;
-    font-family: 'Courier New', Courier, monospace;
+body,
+html {
+  margin: 0;
+  font-family: "Courier New", Courier, monospace;
 }
 
 .content {
-    margin: 0 auto;
-    width: 400px;
+  margin: 0 auto;
+  width: 400px;
 }
 
-table, td, th {
-    border: 1px solid #aaa;
-    padding: 8px;
+form {
+  background-color: gainsboro;
+  padding: 20px;
+}
+
+label {
+  padding: 5px;
+}
+
+table,
+td,
+th {
+  border: 1px solid #aaa;
+  padding: 8px;
 }
 
 table {
-    border-collapse: collapse;
-    width: 100%;
+  border-collapse: collapse;
+  width: 100%;
 }
 
 th {
-    height: 30px;
+  height: 30px;
 }
 
 td {
-    text-align: center;
-    padding: 5px;
+  text-align: center;
+  padding: 5px;
 }
 
 .form {
-    margin-top: 25px;
+  margin-top: 25px;
 }
 
 #content {
-    width: 70%;
+  width: 70%;
 }

@@ -10,26 +10,33 @@ views = Blueprint("views", __name__)
 def appointment_actions():
     if request.method == "POST":
         client = request.form["client"]
-        service = request.form.get("service")
+        services = request.form.getlist("service")
         employee = request.form.get("employee")
         date = request.form["appt_date"]
         time = request.form["appt_time"]
         appt = datetime.strptime(date + time, "%Y-%m-%d%H:%M")
         tip = request.form["tip"]
-        new_appt = Appointment(
-            client=client,
-            serviceId=service,
-            employeeId=employee,
-            apptDateTime=appt,
-            tips=tip,
-        )
-        try:
-            db.session.add(new_appt)
-            db.session.commit()
+        if tip == "":
+            tip = 0
+        if services == None:
             return redirect("/appointments")
-        except Exception as error:
-            print(error)
-            return "There was an issue adding a new appointment"
+        print(f"services: {services}")
+        for service in services:
+            new_appt = Appointment(
+                client=client,
+                serviceId=service,
+                employeeId=employee,
+                apptDateTime=appt,
+                tips=tip,
+            )
+            try:
+                db.session.add(new_appt)
+                db.session.commit()
+            except Exception as error:
+                print(error)
+                return "There was an issue adding a new appointment"
+
+        return redirect("/appointments")
     else:
         employeeList = Employee.query.all()
         serviceList = Service.query.all()
@@ -44,8 +51,6 @@ def appointment_actions():
             .join(Employee)
             .all()
         )
-        for appt, service, employee in appointments:
-            print(appt.client, service, employee)
 
         return render_template(
             "appointments.html",
