@@ -1,6 +1,4 @@
 from flask import Flask, render_template, request, redirect
-from sqlalchemy import join
-from sqlalchemy.sql.expression import select
 from models import Appointment, Employee, Service, db_path, db
 from datetime import datetime
 
