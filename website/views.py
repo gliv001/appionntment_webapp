@@ -1,14 +1,12 @@
-from flask import Flask, render_template, request, redirect
-from models import Appointment, Employee, Service, db_path, db
+from flask import Blueprint, render_template, request, redirect
+from .models import Appointment, Employee, Service, db
 from datetime import datetime
 
-app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = db_path
-db.init_app(app)
+views = Blueprint("views", __name__)
 
 
-@app.route("/", methods=["POST", "GET"])
-@app.route("/appointments", methods=["POST", "GET"])
+@views.route("/", methods=["POST", "GET"])
+@views.route("/appointments", methods=["POST", "GET"])
 def appointment_actions():
     if request.method == "POST":
         client = request.form["client"]
@@ -57,7 +55,7 @@ def appointment_actions():
         )
 
 
-@app.route("/appointments/update/<int:id>", methods=["POST", "GET"])
+@views.route("/appointments/update/<int:id>", methods=["POST", "GET"])
 def appointment_update(id):
     select_appointment = Appointment.query.get_or_404(id)
     select_service = Service.query.get(select_appointment.serviceId)
@@ -94,7 +92,7 @@ def appointment_update(id):
         )
 
 
-@app.route("/appointments/delete/<int:id>")
+@views.route("/appointments/delete/<int:id>")
 def appointment_delete(id):
     select_appointment = Appointment.query.get_or_404(id)
     try:
@@ -106,7 +104,7 @@ def appointment_delete(id):
         return "There was an issue deleting an appointment"
 
 
-@app.route("/employees", methods=["POST", "GET"])
+@views.route("/employees", methods=["POST", "GET"])
 def employee_actions():
     if request.method == "POST":
         employee_name = request.form["name"]
@@ -123,7 +121,7 @@ def employee_actions():
         return render_template("employees.html", employees=e)
 
 
-@app.route("/employees/update/<int:id>", methods=["POST", "GET"])
+@views.route("/employees/update/<int:id>", methods=["POST", "GET"])
 def employee_update(id):
     selected_employee = Employee.query.get_or_404(id)
     if request.method == "POST":
@@ -138,7 +136,7 @@ def employee_update(id):
         return render_template("employees_update.html", employee=selected_employee)
 
 
-@app.route("/employees/delete/<int:id>")
+@views.route("/employees/delete/<int:id>")
 def employee_delete(id):
     selected_employee = Employee.query.get_or_404(id)
     try:
@@ -150,7 +148,7 @@ def employee_delete(id):
         return "There was an issue deleting an employee"
 
 
-@app.route("/services", methods=["POST", "GET"])
+@views.route("/services", methods=["POST", "GET"])
 def service_actions():
     if request.method == "POST":
         service_name = request.form["name"]
@@ -168,7 +166,7 @@ def service_actions():
         return render_template("services.html", services=s)
 
 
-@app.route("/services/update/<int:id>", methods=["POST", "GET"])
+@views.route("/services/update/<int:id>", methods=["POST", "GET"])
 def service_update(id):
     selected_service = Service.query.get_or_404(id)
     if request.method == "POST":
@@ -184,7 +182,7 @@ def service_update(id):
         return render_template("services_update.html", service=selected_service)
 
 
-@app.route("/services/delete/<int:id>")
+@views.route("/services/delete/<int:id>")
 def service_delete(id):
     selected_service = Service.query.get_or_404(id)
     try:
@@ -194,7 +192,3 @@ def service_delete(id):
     except Exception as error:
         print(error)
         return "There was an issue deleting an service"
-
-
-if __name__ == "__main__":
-    app.run(debug=True)
