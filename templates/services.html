@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block head %}
+<title>services</title>
+{% endblock %}
+
+{% block body %}
+<div class="content">
+    <h1 style="text-align: center">Services</h1>
+    {% if services | length < 1 %}
+    <h4 style="text-align: center">There are no services</h4>
+    {% else %}
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Pricing</th>
+            <th>Update?</th>
+        </tr>
+        {% for s in services %}
+        <tr>
+            <td>{{s.name}}</td>
+            <td>{{s.price}}</td>
+            <td>
+                <a href="/services/delete/{{s.id}}">Delete</a>
+                <a href="/services/update/{{s.id}}">Update</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+    <form action="/services" method="POST">
+        <b>New: </b>
+        Name <input type="text" name="name">
+        Price <input type="number" name="price">
+        <input type="submit">
+    </form>
+</div>
+{% endblock %}

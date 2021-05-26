@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block head %}
+<title>employees update</title>
+{% endblock %}
+
+{% block body %}
+<div class="content">
+    <h1 style="text-align: center">Employees</h1>
+    <form action="/employees/update/{{employee.id}}" method="POST">
+        Name <input type="text" name="name" value={{employee.name}}>
+        <input type="submit">
+    </form>
+</div>
+{% endblock %}
