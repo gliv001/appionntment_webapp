@@ -53,7 +53,7 @@ def appointment_actions():
         )
 
         return render_template(
-            "appointments.html",
+            "views/appointments.html",
             employeeList=employeeList,
             serviceList=serviceList,
             appointments=appointments,
@@ -86,7 +86,7 @@ def appointment_update(id):
         serviceList = Service.query.all()
 
         return render_template(
-            "appointments_update.html",
+            "views/appointments_update.html",
             serviceList=serviceList,
             employeeList=employeeList,
             appointment=select_appointment,
@@ -123,7 +123,7 @@ def employee_actions():
             return "There was an issue adding a new employee"
     else:
         e = Employee.query.order_by(Employee.id).all()
-        return render_template("employees.html", employees=e)
+        return render_template("views/employees.html", employees=e)
 
 
 @views.route("/employees/update/<int:id>", methods=["POST", "GET"])
@@ -138,7 +138,9 @@ def employee_update(id):
             print(error)
             return "There was an issue updating an employee"
     else:
-        return render_template("employees_update.html", employee=selected_employee)
+        return render_template(
+            "views/views/employees_update.html", employee=selected_employee
+        )
 
 
 @views.route("/employees/delete/<int:id>")
@@ -168,7 +170,7 @@ def service_actions():
             return "There was an issue adding a new service"
     else:
         s = Service.query.order_by(Service.id).all()
-        return render_template("services.html", services=s)
+        return render_template("views/services.html", services=s)
 
 
 @views.route("/services/update/<int:id>", methods=["POST", "GET"])
@@ -184,7 +186,7 @@ def service_update(id):
             print(error)
             return "There was an issue updating an service"
     else:
-        return render_template("services_update.html", service=selected_service)
+        return render_template("views/services_update.html", service=selected_service)
 
 
 @views.route("/services/delete/<int:id>")
