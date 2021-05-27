@@ -18,6 +18,14 @@ class User(db.Model, UserMixin):
     name = db.Column(db.String(64), nullable=False)
 
 
+class LoginHistory(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    userId = db.Column(db.Integer, ForeignKey(User.id))
+    email = db.Column(db.String(64), nullable=False)
+    status = db.Column(db.String(64), nullable=False)
+    loginTime = db.Column(db.DateTime, default=datetime.now())
+
+
 class Employee(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), nullable=False)

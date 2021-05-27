@@ -1,4 +1,4 @@
-from website.models import User
+from website.models import Employee, LoginHistory, User, UserLevel
 from flask import Blueprint, render_template, redirect, request
 from flask.helpers import flash, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -13,14 +13,22 @@ def login():
     if request.method == "POST":
         email = request.form["email"]
         password = request.form["password"]
+        log = LoginHistory(email=email)
         user = User.query.filter_by(email=email).first()
         if user:
             is_authenticated = check_password_hash(user.password, password)
             if is_authenticated:
                 flash(f"Login Success! Welcome back {user.name}", category="success")
+                log.status = "login success"
+                log.userId = user.id
+                db.session.add(log)
+                db.session.commit()
                 login_user(user, remember=True)
                 return redirect(url_for("views.appointment_home"))
         flash("Login Failed, Email/Password (or both) incorrect", category="error")
+        log.status = "login failed"
+        db.session.add(log)
+        db.session.commit()
         return redirect("/login")
     else:
         return render_template("auth/login.html", user=current_user)
@@ -30,6 +38,7 @@ def login():
 @login_required
 def logout():
     logout_user()
+    flash("Logout Successful!", category="success")
     return redirect(url_for("auth.login"))
 
 
@@ -55,10 +64,13 @@ def signup():
             new_user = User(
                 name=name,
                 email=email,
+                userLevelId=3,
                 password=generate_password_hash(password, method="sha256"),
             )
             try:
                 db.session.add(new_user)
+                db.session.add(LoginHistory(email=email, status="signup"))
+                db.session.add(Employee(name=name))
                 db.session.commit()
                 flash("Account created", category="success")
                 login_user(new_user, remember=True)
