@@ -36,19 +36,57 @@
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbar">
-        <div class="navbar-nav">
-          <a class="nav-item nav-link" id="appointments" href="/appointments"
-            >Appointments</a
-          >
-          <a class="nav-item nav-link" id="employees" href="/employees"
-            >Employees</a
-          >
-          <a class="nav-item nav-link" id="services" href="/services"
-            >Services</a
-          >
-        </div>
+        <ul class="navbar-nav">
+          <li>
+            <a class="nav-item nav-link" id="appointments" href="/appointments"
+              >Appointments</a
+            >
+          </li>
+          <li>
+            <a class="nav-item nav-link" id="employees" href="/employees"
+              >Employees</a
+            >
+          </li>
+          <li>
+            <a class="nav-item nav-link" id="services" href="/services"
+              >Services</a
+            >
+          </li>
+          <ul class="nav navbar-nav navbar-right">
+            <li>
+              <a class="nav-item nav-link" id="login" href="/login">Login</a>
+            </li>
+            <li>
+              <a class="nav-item nav-link" id="signup" href="/signup">Signup</a>
+            </li>
+            <li>
+              <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
+            </li>
+          </ul>
+        </ul>
       </div>
     </nav>
+    {% with messages = get_flashed_messages(with_categories=true) %} 
+      {% if messages %} 
+        {% for category, message in messages %} 
+          {% if category == 'error' %}
+            <div class="alert alert-danger alter-dismissable fade show" role="alert">
+              {{message}}
+              <button type="button" class="close" data-dismiss="alert">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          {% else %}
+            <div class="alert alert-success alter-dismissable fade show" role="alert">
+              {{message}}
+              <button type="button" class="close" data-dismiss="alert">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          {% endif %} 
+        {% endfor %} 
+      {% endif %}
+    {% endwith %}
     {% block body %}{% endblock %}
     <script
       src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
