@@ -1,17 +1,36 @@
+from website.models import User
 from flask import Blueprint, render_template, redirect, request
-from flask.helpers import flash
+from flask.helpers import flash, url_for
+from werkzeug.security import generate_password_hash, check_password_hash
+from . import db
+from flask_login import login_user, login_required, logout_user, current_user
 
 auth = Blueprint("auth", __name__)
 
 
 @auth.route("/login", methods=["POST", "GET"])
 def login():
-    return render_template("auth/login.html")
+    if request.method == "POST":
+        email = request.form["email"]
+        password = request.form["password"]
+        user = User.query.filter_by(email=email).first()
+        if user:
+            is_authenticated = check_password_hash(user.password, password)
+            if is_authenticated:
+                flash(f"Login Success! Welcome back {user.name}", category="success")
+                login_user(user, remember=True)
+                return redirect(url_for("views.appointment_home"))
+        flash("Login Failed, Email/Password (or both) incorrect", category="error")
+        return redirect("/login")
+    else:
+        return render_template("auth/login.html", user=current_user)
 
 
 @auth.route("/logout")
+@login_required
 def logout():
-    return redirect("/auth/login.html")
+    logout_user()
+    return redirect(url_for("auth.login"))
 
 
 @auth.route("/signup", methods=["POST", "GET"])
@@ -19,18 +38,33 @@ def signup():
     if request.method == "POST":
         email = request.form["email"]
         name = request.form["name"]
-        passwd = request.form["password"]
-        passwd2 = request.form["password2"]
-
-        if email.find("@") <= 0 or email.find(".") <= 0 or len(email) <= 4:
+        password = request.form["password"]
+        password2 = request.form["password2"]
+        user_exists = User.query.filter_by(email=email).first()
+        if user_exists:
+            flash("Email already exists!", category="error")
+        elif email.find("@") <= 0 or email.find(".") <= 0 or len(email) <= 4:
             flash("Incorrect Email", category="error")
         elif len(name) < 2:
             flash("Name must be greater than 1", category="error")
-        elif passwd != passwd2:
+        elif password != password2:
             flash("Passwords do not match", category="error")
-        elif len(passwd) <= 6:
+        elif len(password) <= 6:
             flash("Password must be greater than 6", category="error")
         else:
-            flash("Account created", category="success")
+            new_user = User(
+                name=name,
+                email=email,
+                password=generate_password_hash(password, method="sha256"),
+            )
+            try:
+                db.session.add(new_user)
+                db.session.commit()
+                flash("Account created", category="success")
+                login_user(new_user, remember=True)
+                return redirect(url_for("views.appointment_home"))
+            except Exception as e:
+                flash("Account creation failed", category="error")
+                print(e)
 
-    return render_template("auth/signup.html")
+    return render_template("auth/signup.html", user=current_user)

@@ -1,6 +1,21 @@
-from . import db
+from flask_login import UserMixin
 from sqlalchemy import ForeignKey
 from datetime import datetime
+from . import db
+
+
+class UserLevel(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    level = db.Column(db.Integer, unique=True)
+    name = db.Column(db.String(64))
+
+
+class User(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    userLevelId = db.Column(db.Integer, ForeignKey(UserLevel.level))
+    email = db.Column(db.String(64), nullable=False, unique=True)
+    password = db.Column(db.String(256), nullable=False)
+    name = db.Column(db.String(64), nullable=False)
 
 
 class Employee(db.Model):

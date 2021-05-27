@@ -1,13 +1,16 @@
+from website.auth import login
 from flask import Blueprint, render_template, request, redirect
 from .models import Appointment, Employee, Service, db
 from datetime import datetime
+from flask_login import login_required, current_user
 
 views = Blueprint("views", __name__)
 
 
 @views.route("/", methods=["POST", "GET"])
 @views.route("/appointments", methods=["POST", "GET"])
-def appointment_actions():
+@login_required
+def appointment_home():
     if request.method == "POST":
         client = request.form["client"]
         services = request.form.getlist("service")
@@ -57,10 +60,12 @@ def appointment_actions():
             employeeList=employeeList,
             serviceList=serviceList,
             appointments=appointments,
+            user=current_user,
         )
 
 
 @views.route("/appointments/update/<int:id>", methods=["POST", "GET"])
+@login_required
 def appointment_update(id):
     select_appointment = Appointment.query.get_or_404(id)
     select_service = Service.query.get(select_appointment.serviceId)
@@ -94,10 +99,12 @@ def appointment_update(id):
             appt_time=datetime.strftime(select_appointment.apptDateTime, "%H:%M"),
             service=select_service,
             employee=select_employee,
+            user=current_user,
         )
 
 
 @views.route("/appointments/delete/<int:id>")
+@login_required
 def appointment_delete(id):
     select_appointment = Appointment.query.get_or_404(id)
     try:
@@ -110,7 +117,8 @@ def appointment_delete(id):
 
 
 @views.route("/employees", methods=["POST", "GET"])
-def employee_actions():
+@login_required
+def employee_home():
     if request.method == "POST":
         employee_name = request.form["name"]
         new_employee = Employee(name=employee_name)
@@ -123,10 +131,11 @@ def employee_actions():
             return "There was an issue adding a new employee"
     else:
         e = Employee.query.order_by(Employee.id).all()
-        return render_template("views/employees.html", employees=e)
+        return render_template("views/employees.html", employees=e, user=current_user)
 
 
 @views.route("/employees/update/<int:id>", methods=["POST", "GET"])
+@login_required
 def employee_update(id):
     selected_employee = Employee.query.get_or_404(id)
     if request.method == "POST":
@@ -139,11 +148,12 @@ def employee_update(id):
             return "There was an issue updating an employee"
     else:
         return render_template(
-            "views/views/employees_update.html", employee=selected_employee
+            "views/employees_update.html", employee=selected_employee, user=current_user
         )
 
 
 @views.route("/employees/delete/<int:id>")
+@login_required
 def employee_delete(id):
     selected_employee = Employee.query.get_or_404(id)
     try:
@@ -156,7 +166,8 @@ def employee_delete(id):
 
 
 @views.route("/services", methods=["POST", "GET"])
-def service_actions():
+@login_required
+def service_home():
     if request.method == "POST":
         service_name = request.form["name"]
         service_price = request.form["price"]
@@ -170,10 +181,11 @@ def service_actions():
             return "There was an issue adding a new service"
     else:
         s = Service.query.order_by(Service.id).all()
-        return render_template("views/services.html", services=s)
+        return render_template("views/services.html", services=s, user=current_user)
 
 
 @views.route("/services/update/<int:id>", methods=["POST", "GET"])
+@login_required
 def service_update(id):
     selected_service = Service.query.get_or_404(id)
     if request.method == "POST":
@@ -186,10 +198,13 @@ def service_update(id):
             print(error)
             return "There was an issue updating an service"
     else:
-        return render_template("views/services_update.html", service=selected_service)
+        return render_template(
+            "views/services_update.html", service=selected_service, user=current_user
+        )
 
 
 @views.route("/services/delete/<int:id>")
+@login_required
 def service_delete(id):
     selected_service = Service.query.get_or_404(id)
     try:
