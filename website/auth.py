@@ -1,6 +1,5 @@
 from website.models import Employee, LoginHistory, User, UserLevel
-from flask import Blueprint, render_template, redirect, request
-from flask.helpers import flash, url_for
+from flask import Blueprint, render_template, redirect, request, flash, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
 from flask_login import login_user, login_required, logout_user, current_user

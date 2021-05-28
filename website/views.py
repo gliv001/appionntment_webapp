@@ -1,5 +1,5 @@
-from website.auth import login
-from flask import Blueprint, render_template, request, redirect
+from flask import Blueprint, render_template, request, redirect, flash
+from flask.helpers import url_for
 from .models import Appointment, Employee, Service, db
 from datetime import datetime
 from flask_login import login_required, current_user
@@ -19,18 +19,19 @@ def appointment_home():
         time = request.form["appt_time"]
         appt = datetime.strptime(date + time, "%Y-%m-%d%H:%M")
         tip = request.form["tip"]
+        total = request.form["total"]
         if tip == "":
             tip = 0
         if services == None:
             return redirect("/appointments")
-        print(f"services: {services}")
         for service in services:
             new_appt = Appointment(
                 client=client,
-                serviceId=service,
+                serviceId=service.split(" ")[0],
                 employeeId=employee,
                 apptDateTime=appt,
                 tips=tip,
+                total=total,
             )
             try:
                 db.session.add(new_appt)
@@ -43,6 +44,13 @@ def appointment_home():
     else:
         employeeList = Employee.query.all()
         serviceList = Service.query.all()
+
+        if len(serviceList) < 1:
+            flash(
+                "There is no services, Please enter your services first.",
+                category="error",
+            )
+            return redirect(url_for("views.service_home"))
         appointments = (
             db.session.query(
                 Appointment,

@@ -1,5 +1,5 @@
 from flask_login import UserMixin
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, UniqueConstraint
 from datetime import datetime
 from . import db
 
@@ -34,7 +34,7 @@ class Employee(db.Model):
 class Service(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), nullable=False)
-    price = db.Column(db.Numeric, default=0)
+    price = db.Column(db.Numeric(precision=6, scale=2), default=0)
 
 
 class Appointment(db.Model):
@@ -43,5 +43,8 @@ class Appointment(db.Model):
     serviceId = db.Column(db.Integer, ForeignKey(Service.id), nullable=True)
     employeeId = db.Column(db.Integer, ForeignKey(Employee.id), nullable=True)
     apptDateTime = db.Column(db.DateTime, default=datetime.now)
-    tips = db.Column(db.Numeric, default=0)
-    total = db.Column(db.Numeric, default=0)
+    tips = db.Column(db.Numeric(precision=6, scale=2), default=0)
+    total = db.Column(db.Numeric(precision=6, scale=2), default=0)
+    __table_args__ = (
+        UniqueConstraint("employeeId", "apptDateTime", name="_employee_appt_uc"),
+    )
