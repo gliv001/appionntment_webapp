@@ -1,5 +1,5 @@
 """Form object declaration."""
-from flask_wtf import FlaskForm,
+from flask_wtf import FlaskForm
 from wtforms import (
     StringField,
     SubmitField,
@@ -38,8 +38,8 @@ class AppointmentForm(FlaskForm):
     service = SelectField("Service", validate_choice=False)
     employee = SelectField("Employee", validate_choice=False)
     appt_datetime = SelectField("Appointment Date/Time", validate_choice=False)
-    tip = DecimalField("Tip", [NumberRange(min=0), DataRequired()])
-    total = DecimalField("Total", [NumberRange(min=0), DataRequired()])
+    tip = DecimalField("Tip", validators=[NumberRange(min=0)])
+    total = DecimalField("Total", render_kw={"disabled": "disabled"}, default=0)
     add = SubmitField("New appointment")
 
 

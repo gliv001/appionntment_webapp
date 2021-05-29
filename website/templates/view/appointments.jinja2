@@ -7,7 +7,11 @@
     />
 {% endblock %}
 
-{% block head %}<title>Appointments Page</title>{% endblock %}
+{% block head %}
+<title>Appointments Page</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="{{url_for('static', filename='js/apptTotalSum.js')}}"></script>
+{% endblock %}
 
 {% block content %}
 <div class="content">
@@ -34,11 +38,11 @@
         {% if appt.tips == 0 %}
         <td>---</td>
         {% else %}
-        <td>{{appt.tips}}</td>
+        <td>${{appt.tips}}</td>
         {% endif %} {% if appt.total == 0 %}
         <td>---</td>
         {% else %}
-        <td>{{appt.total}}</td>
+        <td>${{appt.total}}</td>
         {% endif %}
         <td class="action">
             <a href="/appointments/delete/{{appt.id}}">Delete</a>
@@ -65,7 +69,7 @@
         </fieldset>
         <fieldset class="form-field">
         {{ form.service.label }}
-        {{ form.service }}
+        {{ form.service(class_="sum-param") }}
         {% if form.service.errors %}
             <ul class="errors">
             {% for error in form.service.errors %}
@@ -98,7 +102,7 @@
         </fieldset>
         <fieldset class="form-field">
         {{ form.tip.label }}
-        {{ form.tip }}
+        {{ form.tip(class_="sum-param") }}
         {% if form.tip.errors %}
             <ul class="errors">
             {% for error in form.tip.errors %}

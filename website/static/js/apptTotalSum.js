@@ -1,21 +1,14 @@
 $(function() {
-    $('#service').change(function() {
-        let service = $('#service').val();
+    $('.sum-param, #client').change(function() {
+        const serviceText = $('#service option:selected').text();
         let tip = $('#tip').val();
         if(tip === '') {
             tip = 0;
         }
-        let sum = parseFloat(service.split(' ')[1]) + parseFloat(tip);
-        $('#total').val(sum)
-    });
-
-    $('#tip').change(function() {
-        let service = $('#service').val();
-        let tip = $('#tip').val();
-        if(tip === '') {
-            tip = 0;
-        }
-        let sum = parseFloat(service.split(' ')[1]) + parseFloat(tip);
-        $('#total').val(sum)
+        let service =serviceText.split(' ')[1].replace('$', '')
+        
+        const sum = parseFloat(service) + parseFloat(tip).toFixed(2);
+        $('#tip').val(tip);
+        $('#total').val(sum);
     });
 });

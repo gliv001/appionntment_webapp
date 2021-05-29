@@ -43,7 +43,7 @@ def appointment_home():
     serviceList = Service.query.all()
     timeslotsList = AppointmentTimes.query.all()
     form.employee.choices = [(e.id, e.name) for e in employeeList]
-    form.service.choices = [(s.id, s.name) for s in serviceList]
+    form.service.choices = [(s.id, f"{s.name} ${s.price}") for s in serviceList]
     form.appt_datetime.choices = [(t.timeslot) for t in timeslotsList]
 
     if len(serviceList) < 1:
@@ -94,7 +94,7 @@ def appointment_update(id):
     serviceList = Service.query.all()
     timeslotsList = AppointmentTimes.query.all()
     form.employee.choices = [(e.id, e.name) for e in employeeList]
-    form.service.choices = [(s.id, s.name) for s in serviceList]
+    form.service.choices = [(s.id, f"{s.name} ${s.price}") for s in serviceList]
     form.appt_datetime.choices = [(t.timeslot) for t in timeslotsList]
 
     form.client.default = select_appointment.client
