@@ -36,9 +36,8 @@ def appointment_home():
                 db.session.commit()
             except Exception as error:
                 print(error)
-                return "There was an issue adding a new appointment"
-
-            return redirect("/appointments")
+                flash("There was an issue adding a new appointment", category="error")
+        return redirect("/appointments")
 
     employeeList = Employee.query.all()
     serviceList = Service.query.all()
@@ -48,11 +47,7 @@ def appointment_home():
     form.appt_datetime.choices = [(t.timeslot) for t in timeslotsList]
 
     if len(serviceList) < 1:
-        flash(
-            "There is no services, Please enter your services first.",
-            category="error",
-        )
-        return redirect(url_for("view.service_home"))
+        flash("There are no services, Please add services first.", category="error")
 
     appointments = (
         db.session.query(
@@ -69,8 +64,6 @@ def appointment_home():
     return render_template(
         "view/appointments.jinja2",
         form=form,
-        employeeList=employeeList,
-        serviceList=serviceList,
         appointments=appointments,
         user=current_user,
     )
@@ -81,8 +74,6 @@ def appointment_home():
 def appointment_update(id):
     form = AppointmentForm()
     select_appointment = Appointment.query.get_or_404(id)
-    select_service = Service.query.get(select_appointment.serviceId)
-    select_employee = Employee.query.get(select_appointment.employeeId)
     if request.method == "POST":
         if form.validate_on_submit():
             select_appointment.client = form.client.data
@@ -94,10 +85,10 @@ def appointment_update(id):
             select_appointment.tips = form.tip.data
             try:
                 db.session.commit()
-                return redirect("/appointments")
             except Exception as error:
                 print(error)
-        return "There was an issue updating an appointment"
+                flash("There was an issue updating an appointment", category="error")
+        return redirect("/appointments")
 
     employeeList = Employee.query.all()
     serviceList = Service.query.all()
@@ -117,14 +108,8 @@ def appointment_update(id):
     return render_template(
         "view/appointment_update.jinja2",
         form=form,
-        serviceList=serviceList,
-        employeeList=employeeList,
-        appointment=select_appointment,
-        appt_date=datetime.strftime(select_appointment.apptDateTime, "%Y-%m-%d"),
-        appt_time=datetime.strftime(select_appointment.apptDateTime, "%H:%M"),
-        service=select_service,
-        employee=select_employee,
         user=current_user,
+        appointment=select_appointment,
     )
 
 
@@ -135,10 +120,10 @@ def appointment_delete(id):
     try:
         db.session.delete(select_appointment)
         db.session.commit()
-        return redirect("/appointments")
     except Exception as error:
         print(error)
-        return "There was an issue deleting an appointment"
+        flash("There was an issue deleting an appointment", category="error")
+    return redirect("/appointments")
 
 
 @view.route("/employees", methods=["POST", "GET"])
@@ -147,15 +132,15 @@ def employee_home():
     form = EmployeeForm()
     if request.method == "POST":
         if form.validate_on_submit():
-            employee_name = request.form["name"]
+            employee_name = form.name.data
             new_employee = Employee(name=employee_name)
             try:
                 db.session.add(new_employee)
                 db.session.commit()
-                return redirect("/employees")
             except Exception as error:
                 print(error)
-                return "There was an issue adding a new employee"
+                flash("There was an issue adding a new employee", category="error")
+        return redirect("/employees")
     e = Employee.query.order_by(Employee.id).all()
     return render_template(
         "view/employees.jinja2",
@@ -172,13 +157,13 @@ def employee_update(id):
     selected_employee = Employee.query.get_or_404(id)
     if request.method == "POST":
         if form.validate_on_submit():
-            selected_employee.name = request.form["name"]
+            selected_employee.name = form.name.data
             try:
                 db.session.commit()
-                return redirect("/employees")
             except Exception as error:
                 print(error)
-                return "There was an issue updating an employee"
+                flash("There was an issue updating an employee", category="error")
+        return redirect("/employees")
 
     form.name.default = selected_employee.name
     return render_template(
@@ -196,10 +181,10 @@ def employee_delete(id):
     try:
         db.session.delete(selected_employee)
         db.session.commit()
-        return redirect("/employees")
     except Exception as error:
         print(error)
-        return "There was an issue deleting an employee"
+        flash("There was an issue deleting an employee", category="error")
+    return redirect("/employees")
 
 
 @view.route("/services", methods=["POST", "GET"])
@@ -208,16 +193,16 @@ def service_home():
     form = ServiceForm()
     if request.method == "POST":
         if form.validate_on_submit():
-            service_name = request.form["name"]
-            service_price = request.form["price"]
+            service_name = form.name.data
+            service_price = form.price.data
             new_service = Service(name=service_name, price=service_price)
             try:
                 db.session.add(new_service)
                 db.session.commit()
-                return redirect("/services")
             except Exception as error:
                 print(error)
-                return "There was an issue adding a new service"
+                flash("There was an issue adding a new service", category="error")
+        return redirect("/services")
 
     s = Service.query.order_by(Service.id).all()
     return render_template(
@@ -235,14 +220,14 @@ def service_update(id):
     selected_service = Service.query.get_or_404(id)
     if request.method == "POST":
         if form.validate_on_submit():
-            selected_service.name = request.form["name"]
-            selected_service.price = request.form["price"]
+            selected_service.name = form.name.data
+            selected_service.price = form.price.data
             try:
                 db.session.commit()
-                return redirect("/services")
             except Exception as error:
                 print(error)
-                return "There was an issue updating an service"
+                flash("There was an issue updating an service", category="error")
+        return redirect("/services")
 
     form.name.default = selected_service.name
     form.price.default = selected_service.price
@@ -261,7 +246,7 @@ def service_delete(id):
     try:
         db.session.delete(selected_service)
         db.session.commit()
-        return redirect("/services")
     except Exception as error:
         print(error)
-        return "There was an issue deleting an service"
+        flash("There was an issue deleting an service", category="error")
+    return redirect("/services")

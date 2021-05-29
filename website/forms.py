@@ -1,5 +1,5 @@
 """Form object declaration."""
-from flask_wtf import FlaskForm, RecaptchaField
+from flask_wtf import FlaskForm,
 from wtforms import (
     StringField,
     SubmitField,
