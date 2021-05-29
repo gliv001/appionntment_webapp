@@ -6,10 +6,8 @@ from wtforms import (
     PasswordField,
     SelectField,
 )
-from wtforms import validators
-from wtforms.fields.core import DateTimeField, DecimalField
+from wtforms.fields.core import DecimalField
 from wtforms.validators import DataRequired, Length, Email, NumberRange
-from wtforms.widgets.core import Select
 
 
 class SignUpForm(FlaskForm):

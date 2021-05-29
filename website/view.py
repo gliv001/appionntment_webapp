@@ -43,7 +43,7 @@ def appointment_home():
     employeeList = Employee.query.all()
     serviceList = Service.query.all()
     timeslotsList = AppointmentTimes.query.all()
-    form.employee.choices = [(form.employee.coerce(e.id), e.name) for e in employeeList]
+    form.employee.choices = [(e.id, e.name) for e in employeeList]
     form.service.choices = [(s.id, s.name) for s in serviceList]
     form.appt_datetime.choices = [(t.timeslot) for t in timeslotsList]
 
@@ -97,17 +97,22 @@ def appointment_update(id):
                 return redirect("/appointments")
             except Exception as error:
                 print(error)
-                return "There was an issue updating an appointment"
+        return "There was an issue updating an appointment"
 
     employeeList = Employee.query.all()
     serviceList = Service.query.all()
+    timeslotsList = AppointmentTimes.query.all()
+    form.employee.choices = [(e.id, e.name) for e in employeeList]
+    form.service.choices = [(s.id, s.name) for s in serviceList]
+    form.appt_datetime.choices = [(t.timeslot) for t in timeslotsList]
 
     form.client.default = select_appointment.client
     form.service.default = select_appointment.serviceId
     form.employee.default = select_appointment.employeeId
     form.appt_datetime.default = select_appointment.apptDateTime
     form.tip.default = select_appointment.tips
-    form.total.default = select_appointment
+    form.total.default = select_appointment.total
+    form.process()
 
     return render_template(
         "view/appointment_update.jinja2",
