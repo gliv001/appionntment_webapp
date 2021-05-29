@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from os import path
+from datetime import datetime
 
 db = SQLAlchemy()
 DB_NAME = "database.db"
@@ -14,10 +15,10 @@ def create_app():
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.init_app(app)
 
-    from .views import views
+    from .view import view
     from .auth import auth
 
-    app.register_blueprint(views, url_prefix="/")
+    app.register_blueprint(view, url_prefix="/")
     app.register_blueprint(auth, url_prefix="/")
 
     if not path.exists("website/" + DB_NAME):
@@ -47,15 +48,31 @@ def create_database(app):
 
 def init_database(app):
     from .models import UserLevel
+    from .models import AppointmentTimes
 
     with app.app_context():
-        admin = UserLevel(level=1, name="admin")
-        manager = UserLevel(level=2, name="manager")
-        employee = UserLevel(level=3, name="employee")
+        userlevels = []
+        userlevels.append(UserLevel(level=1, name="admin"))
+        userlevels.append(UserLevel(level=2, name="manager"))
+        userlevels.append(UserLevel(level=3, name="employee"))
+        strptime = datetime.strptime
+        timeslots = []
+        timeslots.append(
+            AppointmentTimes(timeslot=strptime("2021-06-01 12:00", "%Y-%m-%d %H:%M"))
+        )
+        timeslots.append(
+            AppointmentTimes(timeslot=strptime("2021-06-01 13:00", "%Y-%m-%d %H:%M"))
+        )
+        timeslots.append(
+            AppointmentTimes(timeslot=strptime("2021-06-01 14:00", "%Y-%m-%d %H:%M"))
+        )
         try:
-            db.session.add(admin)
-            db.session.add(manager)
-            db.session.add(employee)
+            for userlevel in userlevels:
+                db.session.add(userlevel)
+
+            for timeslot in timeslots:
+                db.session.add(timeslot)
+
             db.session.commit()
             print("Database Initialized")
         except Exception as e:

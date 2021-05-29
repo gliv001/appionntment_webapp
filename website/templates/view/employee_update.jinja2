@@ -1,0 +1,34 @@
+{% extends "base.jinja2" %}
+{% block styles %}
+    <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/forms.css') }}"
+            type="text/css"
+    />
+{% endblock %}
+
+{% block head %}<title>Employees Page</title>{% endblock %}
+
+{% block content %}
+    <div class="content">
+    <h1 style="text-align: center">Employee Update</h1>
+    <div>
+      <form method="POST" action="{{ url_for('view.employee_update', id=employee.id) }}">
+      {{ form.csrf_token }}
+        <fieldset class="form-field">
+        {{ form.name.label }}
+        {{ form.name(value=employee.name) }}
+        {% if form.name.errors %}
+            <ul class="errors">
+            {% for error in form.name.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+        </fieldset>
+        {{ form.add }}
+      </form>
+    </div>
+
+</div>
+{% endblock %}

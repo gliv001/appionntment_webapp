@@ -1,3 +1,4 @@
+from website.forms import LoginForm, SignUpForm
 from website.models import Employee, LoginHistory, User, UserLevel
 from flask import Blueprint, render_template, redirect, request, flash, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -9,7 +10,8 @@ auth = Blueprint("auth", __name__)
 
 @auth.route("/login", methods=["POST", "GET"])
 def login():
-    if request.method == "POST":
+    form = LoginForm()
+    if form.validate_on_submit():
         email = request.form["email"]
         password = request.form["password"]
         log = LoginHistory(email=email)
@@ -23,14 +25,15 @@ def login():
                 db.session.add(log)
                 db.session.commit()
                 login_user(user, remember=True)
-                return redirect(url_for("views.appointment_home"))
+                return redirect(url_for("view.appointment_home"))
         flash("Login Failed, Email/Password (or both) incorrect", category="error")
         log.status = "login failed"
         db.session.add(log)
         db.session.commit()
         return redirect("/login")
-    else:
-        return render_template("auth/login.html", user=current_user)
+    return render_template(
+        "auth/login.jinja2", form=form, template="form-template", user=current_user
+    )
 
 
 @auth.route("/logout")
@@ -43,39 +46,43 @@ def logout():
 
 @auth.route("/signup", methods=["POST", "GET"])
 def signup():
+    form = SignUpForm()
     if request.method == "POST":
-        email = request.form["email"]
-        name = request.form["name"]
-        password = request.form["password"]
-        password2 = request.form["password2"]
-        user_exists = User.query.filter_by(email=email).first()
-        if user_exists:
-            flash("Email already exists!", category="error")
-        elif email.find("@") <= 0 or email.find(".") <= 0 or len(email) <= 4:
-            flash("Incorrect Email", category="error")
-        elif len(name) < 2:
-            flash("Name must be greater than 1", category="error")
-        elif password != password2:
-            flash("Passwords do not match", category="error")
-        elif len(password) <= 6:
-            flash("Password must be greater than 6", category="error")
-        else:
-            new_user = User(
-                name=name,
-                email=email,
-                userLevelId=3,
-                password=generate_password_hash(password, method="sha256"),
-            )
-            try:
-                db.session.add(new_user)
-                db.session.add(LoginHistory(email=email, status="signup"))
-                db.session.add(Employee(name=name))
-                db.session.commit()
-                flash("Account created", category="success")
-                login_user(new_user, remember=True)
-                return redirect(url_for("views.appointment_home"))
-            except Exception as e:
-                flash("Account creation failed", category="error")
-                print(e)
+        if form.validate_on_submit():
+            email = request.form["email"]
+            name = request.form["name"]
+            password = request.form["password"]
+            password2 = request.form["password2"]
+            user_exists = User.query.filter_by(email=email).first()
+            if user_exists:
+                flash("Email already exists!", category="error")
+            elif email.find("@") <= 0 or email.find(".") <= 0 or len(email) <= 4:
+                flash("Incorrect Email", category="error")
+            elif len(name) < 2:
+                flash("Name must be greater than 1", category="error")
+            elif password != password2:
+                flash("Passwords do not match", category="error")
+            elif len(password) <= 6:
+                flash("Password must be greater than 6", category="error")
+            else:
+                new_user = User(
+                    name=name,
+                    email=email,
+                    userLevelId=3,
+                    password=generate_password_hash(password, method="sha256"),
+                )
+                try:
+                    db.session.add(new_user)
+                    db.session.add(LoginHistory(email=email, status="signup"))
+                    db.session.add(Employee(name=name))
+                    db.session.commit()
+                    flash("Account created", category="success")
+                    login_user(new_user, remember=True)
+                    return redirect(url_for("view.appointment_home"))
+                except Exception as e:
+                    flash("Account creation failed", category="error")
+                    print(e)
 
-    return render_template("auth/signup.html", user=current_user)
+    return render_template(
+        "auth/signup.jinja2", form=form, template="form-template", user=current_user
+    )

@@ -1,0 +1,56 @@
+{% extends "base.jinja2" %}
+{% block styles %}
+    <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/forms.css') }}"
+            type="text/css"
+    />
+{% endblock %}
+
+{% block head %}<title>Employees Page</title>{% endblock %}
+
+{% block content %}
+    <div class="content">
+    <h1 style="text-align: center">Employees</h1>
+    {% if employees | length < 1 %}
+    <h4 style="text-align: center">There are no employees</h4>
+    {% else %}
+    <table>
+        <tr>
+        <th>Name</th>
+        <th class="action">Update?</th>
+        </tr>
+        {% for e in employees %}
+        <tr>
+        <td>{{e.name}}</td>
+        <td class="action">
+            <a href="/employees/delete/{{e.id}}">Delete</a>
+            <a href="/employees/update/{{e.id}}">Update</a>
+        </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+
+    <div id="spacer"></div>
+
+    <div>
+      <form method="POST" action="{{ url_for('view.employee_home') }}">
+      {{ form.csrf_token }}
+        <fieldset class="form-field">
+        {{ form.name.label }}
+        {{ form.name }}
+        {% if form.name.errors %}
+            <ul class="errors">
+            {% for error in form.name.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+        </fieldset>
+        {{ form.add }}
+      </form>
+    </div>
+
+</div>
+{% endblock %}

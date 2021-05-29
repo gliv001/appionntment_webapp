@@ -1,0 +1,126 @@
+{% extends "base.jinja2" %}
+{% block styles %}
+    <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/forms.css') }}"
+            type="text/css"
+    />
+{% endblock %}
+
+{% block head %}<title>Appointments Page</title>{% endblock %}
+
+{% block content %}
+<div class="content">
+    <h1 style="text-align: center">Appointments</h1>
+    {% if appointments | length < 1 %}
+    <h4 style="text-align: center">There are no appointments</h4>
+    {% else %}
+    <table>
+        <tr>
+        <th>Client</th>
+        <th>Service</th>
+        <th>Employee</th>
+        <th>Appointment Date/Time</th>
+        <th>Tips</th>
+        <th>Total</th>
+        <th class="action">Update?</th>
+        </tr>
+        {% for appt, service, employee in appointments %}
+        <tr>
+        <td>{{appt.client}}</td>
+        <td>{{service}}</td>
+        <td>{{employee}}</td>
+        <td>{{appt.apptDateTime}}</td>
+        {% if appt.tips == 0 %}
+        <td>---</td>
+        {% else %}
+        <td>{{appt.tips}}</td>
+        {% endif %} {% if appt.total == 0 %}
+        <td>---</td>
+        {% else %}
+        <td>{{appt.total}}</td>
+        {% endif %}
+        <td class="action">
+            <a href="/appointments/delete/{{appt.id}}">Delete</a>
+            <a href="/appointments/update/{{appt.id}}">Update</a>
+        </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+
+    <div>
+      <form method="POST" action="{{ url_for('view.appointment_home') }}">
+      {{ form.csrf_token }}
+        <fieldset class="form-field">
+        {{ form.client.label }}
+        {{ form.client }}
+        {% if form.client.errors %}
+            <ul class="errors">
+            {% for error in form.client.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+        </fieldset>
+        <fieldset class="form-field">
+        {{ form.service.label }}
+        {{ form.service }}
+        {% if form.service.errors %}
+            <ul class="errors">
+            {% for error in form.service.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+        </fieldset>
+        <fieldset class="form-field">
+        {{ form.employee.label }}
+        {{ form.employee }}
+        {% if form.employee.errors %}
+            <ul class="errors">
+            {% for error in form.employee.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+        </fieldset>
+        <fieldset class="form-field">
+        {{ form.appt_datetime.label }}
+        {{ form.appt_datetime }}
+        {% if form.appt_datetime.errors %}
+            <ul class="errors">
+            {% for error in form.appt_datetime.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+        </fieldset>
+        <fieldset class="form-field">
+        {{ form.tip.label }}
+        {{ form.tip }}
+        {% if form.tip.errors %}
+            <ul class="errors">
+            {% for error in form.tip.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+        </fieldset>
+        <fieldset class="form-field">
+        {{ form.total.label }}
+        {{ form.total }}
+        {% if form.total.errors %}
+            <ul class="errors">
+            {% for error in form.total.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+        </fieldset>
+        {{ form.add }}
+      </form>
+    </div>
+
+</div>
+{% endblock %}
