@@ -1,6 +1,17 @@
+from flask_mail import Message, Mail
+from itsdangerous.exc import SignatureExpired
+from itsdangerous.url_safe import URLSafeTimedSerializer
 from website.forms import LoginForm, SignUpForm
 from website.models import Employee, LoginHistory, User, UserLevel
-from flask import Blueprint, render_template, redirect, request, flash, url_for
+from flask import (
+    Blueprint,
+    render_template,
+    redirect,
+    request,
+    flash,
+    url_for,
+    current_app,
+)
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
 from flask_login import login_user, login_required, logout_user, current_user
@@ -65,24 +76,52 @@ def signup():
             elif len(password) <= 6:
                 flash("Password must be greater than 6", category="error")
             else:
-                new_user = User(
-                    name=name,
-                    email=email,
-                    userLevelId=3,
-                    password=generate_password_hash(password, method="sha256"),
+                mail = Mail(current_app)
+                s = URLSafeTimedSerializer(current_app.config.get("SECRET_KEY"))
+                token = s.dumps(email, salt="email-confirm")
+                flash("Account Pending Verification", category="success")
+                email_msg = Message(
+                    "Confirm Email for appointment webapp",
+                    sender=current_app.config.get("MAIL_USERNAME"),
+                    recipients=[current_app.config.get("MAIL_USERNAME")],
                 )
-                try:
-                    db.session.add(new_user)
-                    db.session.add(LoginHistory(email=email, status="signup"))
-                    db.session.add(Employee(name=name))
-                    db.session.commit()
-                    flash("Account created", category="success")
-                    login_user(new_user, remember=True)
-                    return redirect(url_for("view.appointment_home"))
-                except Exception as e:
-                    flash("Account creation failed", category="error")
-                    print(e)
+
+                link = url_for("auth.confirm_email", token=token, _external=True)
+                print(link)
+                email_msg.body = f"please click on link for verification: {link}"
+
+                mail.send(email_msg)
+
+                return redirect(url_for("auth.login"))
+                # new_user = User(
+                #     name=name,
+                #     email=email,
+                #     userLevelId=3,
+                #     password=generate_password_hash(password, method="sha256"),
+                # )
+                # try:
+                #     db.session.add(new_user)
+                #     db.session.add(LoginHistory(email=email, status="signup"))
+                #     db.session.add(Employee(name=name))
+                #     db.session.commit()
+                #     flash("Account created", category="success")
+                #     login_user(new_user, remember=True)
+                #     return redirect(url_for("view.appointment_home"))
+                # except Exception as e:
+                #     flash("Account creation failed", category="error")
+                #     print(e)
 
     return render_template(
         "auth/signup.jinja2", form=form, template="form-template", user=current_user
     )
+
+
+@auth.route("/confirm_email/<token>")
+def confirm_email(token):
+    s = URLSafeTimedSerializer(current_app.config.get("SECRET_KEY"))
+    try:
+        email = s.loads(token, salt="email-confirm", max_age=30)
+        return redirect(url_for("auth.login"))
+    except SignatureExpired:
+        flash("The token has expired please recreate account", category="error")
+        return redirect(url_for("auth.signup"))

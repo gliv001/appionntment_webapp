@@ -5,14 +5,12 @@ from os import path
 from datetime import datetime
 
 db = SQLAlchemy()
-DB_NAME = "database.db"
 
 
 def create_app():
     app = Flask(__name__)
-    app.config["SECRET_KEY"] = "secret_key"
-    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DB_NAME}"
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config.from_pyfile("../config.cfg")
+
     db.init_app(app)
 
     from .view import view
@@ -21,7 +19,7 @@ def create_app():
     app.register_blueprint(view, url_prefix="/")
     app.register_blueprint(auth, url_prefix="/")
 
-    if not path.exists("website/" + DB_NAME):
+    if not path.exists("website/" + app.config.get("DB_NAME")):
         create_database(app)
         init_database(app)
 

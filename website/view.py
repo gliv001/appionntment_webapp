@@ -1,7 +1,7 @@
 from website.forms import AppointmentForm, EmployeeForm, ServiceForm
 from flask import Blueprint, render_template, request, redirect, flash
 from flask.helpers import url_for
-from .models import Appointment, AppointmentTimes, Employee, Service, db
+from .models import Appointment, Employee, Service, db
 from datetime import datetime
 from flask_login import login_required, current_user
 
