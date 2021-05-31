@@ -90,11 +90,20 @@
         {% endif %}
         </fieldset>
         <fieldset class="form-field">
-        {{ form.appt_datetime.label }}
-        {{ form.appt_datetime }}
-        {% if form.appt_datetime.errors %}
+        {{ form.appt_date.label }}
+        {{ form.appt_date }}
+        {% if form.appt_date.errors %}
             <ul class="errors">
-            {% for error in form.appt_datetime.errors %}
+            {% for error in form.appt_date.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+        {{ form.appt_time.label }}
+        {{ form.appt_time }}
+        {% if form.appt_time.errors %}
+            <ul class="errors">
+            {% for error in form.appt_time.errors %}
                 <li>{{ error }}</li>
             {% endfor %}
             </ul>

@@ -18,7 +18,8 @@ def appointment_home():
             client = form.client.data
             service = form.service.data
             employee = form.employee.data
-            appt = form.appt_datetime.data
+            appt_date = form.appt_date.data
+            appt_time = form.appt_time.data
             tip = form.tip.data
             total = form.total.data
             if tip == "":
@@ -27,7 +28,9 @@ def appointment_home():
                 client=client,
                 serviceId=service,
                 employeeId=employee,
-                apptDateTime=datetime.strptime(appt, "%Y-%m-%d %H:%M:%S"),
+                apptDateTime=datetime.strptime(
+                    f"{appt_date} {appt_time}", "%Y-%m-%d %H:%M:%S"
+                ),
                 tips=tip,
                 total=total,
             )
@@ -41,10 +44,8 @@ def appointment_home():
 
     employeeList = Employee.query.all()
     serviceList = Service.query.all()
-    timeslotsList = AppointmentTimes.query.all()
     form.employee.choices = [(e.id, e.name) for e in employeeList]
     form.service.choices = [(s.id, f"{s.name} ${s.price}") for s in serviceList]
-    form.appt_datetime.choices = [(t.timeslot) for t in timeslotsList]
 
     if len(serviceList) < 1:
         flash("There are no services, Please add services first.", category="error")
@@ -80,7 +81,7 @@ def appointment_update(id):
             select_appointment.service = form.service.data
             select_appointment.employee = form.employee.data
             select_appointment.apptDateTime = datetime.strptime(
-                form.appt_datetime.data, "%Y-%m-%d %H:%M:%S"
+                f"{form.appt_date.data} {form.appt_time.data}", "%Y-%m-%d %H:%M:%S"
             )
             select_appointment.tips = form.tip.data
             try:
@@ -92,18 +93,19 @@ def appointment_update(id):
 
     employeeList = Employee.query.all()
     serviceList = Service.query.all()
-    timeslotsList = AppointmentTimes.query.all()
     form.employee.choices = [(e.id, e.name) for e in employeeList]
     form.service.choices = [(s.id, f"{s.name} ${s.price}") for s in serviceList]
-    form.appt_datetime.choices = [(t.timeslot) for t in timeslotsList]
 
     form.client.default = select_appointment.client
     form.service.default = select_appointment.serviceId
     form.employee.default = select_appointment.employeeId
-    form.appt_datetime.default = select_appointment.apptDateTime
+    date = select_appointment.apptDateTime.date()
+    time = select_appointment.apptDateTime.time()
+    form.appt_date.default = date
+    form.appt_time.default = time
     form.tip.default = select_appointment.tips
     form.total.default = select_appointment.total
-    form.process()
+    form.process()  # this is to set the default choices for services/employees
 
     return render_template(
         "view/appointment_update.jinja2",
