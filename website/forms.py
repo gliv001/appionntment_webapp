@@ -7,7 +7,7 @@ from wtforms import (
     SelectField,
 )
 from wtforms.fields.html5 import DecimalField, DateField, TimeField
-from wtforms.validators import DataRequired, Length, Email, NumberRange
+from wtforms.validators import DataRequired, EqualTo, Length, Email, NumberRange
 
 
 class SignUpForm(FlaskForm):
@@ -17,10 +17,18 @@ class SignUpForm(FlaskForm):
         "Email", [Email(message=("Not a valid email address.")), DataRequired()]
     )
     name = StringField(
-        "Name", [DataRequired(), Length(min=1, max=64, message="range(1-64)")]
+        "Name", [DataRequired(), Length(min=2, max=64, message="range(2-64)")]
     )
-    password = PasswordField("Password", [DataRequired()])
-    password2 = PasswordField("Password (Confirm)", [DataRequired()])
+    password = PasswordField(
+        "Password", [DataRequired(), Length(min=6, max=64, message="range(6-64)")]
+    )
+    password2 = PasswordField(
+        "Password (Confirm)",
+        [
+            DataRequired(),
+            EqualTo("password", message="Both password fields must be equal!"),
+        ],
+    )
     # recaptcha = RecaptchaField()
     submit = SubmitField("Sign Up")
 

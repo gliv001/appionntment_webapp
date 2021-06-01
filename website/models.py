@@ -16,6 +16,8 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(64), nullable=False, unique=True)
     password = db.Column(db.String(256), nullable=False)
     name = db.Column(db.String(64), nullable=False)
+    verified = db.Column(db.Boolean, default=False)
+    creationDate = db.Column(db.DateTime, default=datetime.now())
 
 
 class LoginHistory(db.Model):
