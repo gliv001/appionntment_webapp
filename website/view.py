@@ -1,9 +1,10 @@
 from website.forms import AppointmentForm, EmployeeForm, ServiceForm
 from flask import Blueprint, render_template, request, redirect, flash
 from flask.helpers import url_for
-from .models import Appointment, Employee, Service, db
+from .models import Appointment, Employees, Service, User, db
 from datetime import datetime
 from flask_login import login_required, current_user
+from werkzeug.security import generate_password_hash
 
 view = Blueprint("view", __name__)
 
@@ -42,7 +43,7 @@ def appointment_home():
                 flash("There was an issue adding a new appointment", category="error")
         return redirect("/appointments")
 
-    employeeList = Employee.query.all()
+    employeeList = Employees.query.all()
     serviceList = Service.query.all()
     form.employee.choices = [(e.id, e.name) for e in employeeList]
     form.service.choices = [(s.id, f"{s.name} ${s.price}") for s in serviceList]
@@ -54,11 +55,11 @@ def appointment_home():
         db.session.query(
             Appointment,
             Service.name.label("service"),
-            Employee.name.label("employee"),
+            Employees.name.label("employee"),
         )
         .select_from(Appointment)
         .join(Service)
-        .join(Employee)
+        .join(Employees)
         .all()
     )
 
@@ -91,7 +92,7 @@ def appointment_update(id):
                 flash("There was an issue updating an appointment", category="error")
         return redirect("/appointments")
 
-    employeeList = Employee.query.all()
+    employeeList = Employees.query.all()
     serviceList = Service.query.all()
     form.employee.choices = [(e.id, e.name) for e in employeeList]
     form.service.choices = [(s.id, f"{s.name} ${s.price}") for s in serviceList]
@@ -134,16 +135,28 @@ def employee_home():
     form = EmployeeForm()
     if request.method == "POST":
         if form.validate_on_submit():
-            employee_name = form.name.data
-            new_employee = Employee(name=employee_name)
+            name = form.name.data
+            email = form.email.data
+            password = form.password.data
+            new_employee = User(
+                userLevelId=3,
+                name=name,
+                email=email,
+                password=generate_password_hash(password, "sha256"),
+                verified=True,
+            )
             try:
                 db.session.add(new_employee)
                 db.session.commit()
             except Exception as error:
                 print(error)
                 flash("There was an issue adding a new employee", category="error")
-        return redirect("/employees")
-    e = Employee.query.order_by(Employee.id).all()
+        return render_template(
+            "view/employees.jinja2",
+            form=form,
+            user=current_user,
+        )
+    e = Employees.query.order_by(Employees.id).all()
     return render_template(
         "view/employees.jinja2",
         form=form,
@@ -156,22 +169,28 @@ def employee_home():
 @login_required
 def employee_update(id):
     form = EmployeeForm()
-    selected_employee = Employee.query.get_or_404(id)
+    employee = User.query.get_or_404(id)
     if request.method == "POST":
         if form.validate_on_submit():
-            selected_employee.name = form.name.data
+            employee.name = form.name.data
+            employee.email = form.email.data
+            employee.password = form.password.data
             try:
                 db.session.commit()
             except Exception as error:
                 print(error)
                 flash("There was an issue updating an employee", category="error")
-        return redirect("/employees")
+        return render_template(
+            "view/employee_update.jinja2",
+            form=form,
+            employee=employee,
+            user=current_user,
+        )
 
-    form.name.default = selected_employee.name
     return render_template(
         "view/employee_update.jinja2",
         form=form,
-        employee=selected_employee,
+        employee=employee,
         user=current_user,
     )
 
@@ -179,7 +198,7 @@ def employee_update(id):
 @view.route("/employees/delete/<int:id>")
 @login_required
 def employee_delete(id):
-    selected_employee = Employee.query.get_or_404(id)
+    selected_employee = User.query.get_or_404(id)
     try:
         db.session.delete(selected_employee)
         db.session.commit()
@@ -231,8 +250,6 @@ def service_update(id):
                 flash("There was an issue updating an service", category="error")
         return redirect("/services")
 
-    form.name.default = selected_service.name
-    form.price.default = selected_service.price
     return render_template(
         "view/service_update.jinja2",
         form=form,

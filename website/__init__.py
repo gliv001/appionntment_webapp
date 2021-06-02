@@ -3,6 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from os import path
 from datetime import datetime
+import subprocess
+import sys
 
 db = SQLAlchemy()
 
@@ -19,8 +21,9 @@ def create_app():
     app.register_blueprint(view, url_prefix="/")
     app.register_blueprint(auth, url_prefix="/")
 
-    if not path.exists("website/" + app.config.get("DB_NAME")):
-        create_database(app)
+    dbpath = "website/" + app.config.get("DB_NAME")
+    if not path.exists(dbpath):
+        create_database(dbpath)
         init_database(app)
 
     login_manager = LoginManager()
@@ -36,12 +39,9 @@ def create_app():
     return app
 
 
-def create_database(app):
-    try:
-        db.create_all(app=app)
-        print("Created Database!")
-    except Exception as e:
-        raise (e)
+def create_database(dbpath):
+    subprocess.call(["sqlite3", dbpath, ".read initdb.sql"])
+    return
 
 
 def init_database(app):
@@ -75,3 +75,23 @@ def init_database(app):
             print("Database Initialized")
         except Exception as e:
             raise (e)
+
+        # create admin user if exists
+        email = app.config.get("ADMIN_EMAIL")
+        passwd = app.config.get("ADMIN_PASS")
+        if email != "" and passwd != "":
+            from .models import User
+            from werkzeug.security import generate_password_hash
+
+            admin = User(
+                userLevelId=1,
+                email=email,
+                password=generate_password_hash(passwd, "sha256"),
+                name="admin",
+                verified=True,
+            )
+            try:
+                db.session.add(admin)
+                db.session.commit()
+            except Exception as e:
+                raise (e)

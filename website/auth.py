@@ -2,7 +2,7 @@ from flask_mail import Message, Mail
 from itsdangerous.exc import SignatureExpired
 from itsdangerous.url_safe import URLSafeTimedSerializer
 from website.forms import LoginForm, SignUpForm
-from website.models import Employee, LoginHistory, User, UserLevel
+from website.models import LoginHistory, User
 from flask import (
     Blueprint,
     render_template,
@@ -82,7 +82,6 @@ def signup():
             email = request.form["email"]
             name = request.form["name"]
             password = request.form["password"]
-            password2 = request.form["password2"]
             user_exists = User.query.filter_by(email=email).first()
             if user_exists:
                 flash("Email already exists!", category="error")
@@ -110,7 +109,6 @@ def signup():
                 try:
                     db.session.add(new_user)
                     db.session.add(LoginHistory(email=email, status="signup"))
-                    db.session.add(Employee(name=name))
                     db.session.commit()
                     flash("Account Pending Verification", category="success")
                     return render_template(

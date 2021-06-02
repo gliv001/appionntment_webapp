@@ -33,6 +33,10 @@ class SignUpForm(FlaskForm):
     submit = SubmitField("Sign Up")
 
 
+class EmployeeForm(SignUpForm):
+    add = SubmitField("New employee")
+
+
 class LoginForm(FlaskForm):
     email = StringField("Email", [Email(message=("Not a valid email")), DataRequired()])
     password = PasswordField("Password", [DataRequired()])
@@ -54,18 +58,11 @@ class AppointmentForm(FlaskForm):
         "Time",
         validators=[DataRequired()],
         format="%H:%M",
-        render_kw={"step": "30"},
+        # render_kw={"step": "30"},
     )
     tip = DecimalField("Tip", validators=[NumberRange(min=0)])
     total = DecimalField("Total", render_kw={"disabled": "disabled"}, default=0)
     add = SubmitField("New appointment")
-
-
-class EmployeeForm(FlaskForm):
-    name = StringField(
-        "Name", [DataRequired(), Length(min=1, max=64, message="range(1-64)")]
-    )
-    add = SubmitField("New employee")
 
 
 class ServiceForm(FlaskForm):

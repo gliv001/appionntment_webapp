@@ -28,7 +28,7 @@ class LoginHistory(db.Model):
     loginTime = db.Column(db.DateTime, default=datetime.now())
 
 
-class Employee(db.Model):
+class Employees(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), nullable=False)
 
@@ -43,7 +43,7 @@ class Appointment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     client = db.Column(db.String(64), nullable=False)
     serviceId = db.Column(db.Integer, ForeignKey(Service.id), nullable=True)
-    employeeId = db.Column(db.Integer, ForeignKey(Employee.id), nullable=True)
+    employeeId = db.Column(db.Integer, ForeignKey(Employees.id), nullable=True)
     apptDateTime = db.Column(db.DateTime, default=datetime.now)
     tips = db.Column(db.Numeric(precision=6, scale=2), default=0)
     total = db.Column(db.Numeric(precision=6, scale=2), default=0)

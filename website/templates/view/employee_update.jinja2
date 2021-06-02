@@ -26,6 +26,37 @@
             </ul>
         {% endif %}
         </fieldset>
+        <fieldset class="form-field">
+        {{ form.email.label }}
+        {{ form.email(value=employee.email) }}
+        {% if form.email.errors %}
+            <ul class="errors">
+            {% for error in form.email.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+        {{ form.password.label }}
+        {{ form.password }}
+        {% if form.password.errors %}
+            <ul class="errors">
+            {% for error in form.password.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+        </fieldset>
+        <fieldset class="form-field">
+        {{ form.password2.label }}
+        {{ form.password2 }}
+        {% if form.password2.errors %}
+            <ul class="errors">
+            {% for error in form.password2.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+        </fieldset>
         {{ form.add }}
       </form>
     </div>
