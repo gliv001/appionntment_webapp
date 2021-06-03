@@ -1,11 +1,6 @@
 """Form object declaration."""
-from flask_wtf import FlaskForm
-from wtforms import (
-    StringField,
-    SubmitField,
-    PasswordField,
-    SelectField,
-)
+from flask_wtf import FlaskForm, RecaptchaField
+from wtforms import StringField, SubmitField, PasswordField, SelectField
 from wtforms.fields.html5 import DecimalField, DateField, TimeField
 from wtforms.validators import DataRequired, EqualTo, Length, Email, NumberRange
 
@@ -29,7 +24,7 @@ class SignUpForm(FlaskForm):
             EqualTo("password", message="Both password fields must be equal!"),
         ],
     )
-    # recaptcha = RecaptchaField()
+    recaptcha = RecaptchaField()
     submit = SubmitField("Sign Up")
 
 
@@ -58,7 +53,7 @@ class AppointmentForm(FlaskForm):
         "Time",
         validators=[DataRequired()],
         format="%H:%M",
-        # render_kw={"step": "30"},
+        render_kw={"step": "1800"},
     )
     tip = DecimalField("Tip", validators=[NumberRange(min=0)])
     total = DecimalField("Total", render_kw={"disabled": "disabled"}, default=0)
