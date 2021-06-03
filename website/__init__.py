@@ -91,8 +91,8 @@ def init_database(app):
             raise (e)
 
         # create admin user if exists
-        email = environ["ADMIN_EMAIL"]
-        passwd = environ["ADMIN_PASS"]
+        email = app.config.get("ADMIN_EMAIL")
+        passwd = app.config.get("ADMIN_PASS")
         if email != "" and passwd != "":
             from .models import User
             from werkzeug.security import generate_password_hash

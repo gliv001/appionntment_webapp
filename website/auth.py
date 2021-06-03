@@ -65,7 +65,7 @@ def logout():
 def signup():
     form = SignUpForm()
     # clean up all expired users
-    config_expire_time = current_app.config.get["ACCOUNT_EXPIRE_VERIFY_TIME"]
+    config_expire_time = int(current_app.config.get("ACCOUNT_EXPIRE_VERIFY_TIME"))
     expired_time = datetime.now() - timedelta(0, config_expire_time)
     expired_accounts = User.query.filter(
         User.creationDate <= expired_time, User.verified == False
@@ -87,12 +87,12 @@ def signup():
                 flash("Email already exists!", category="error")
             else:
                 mail = Mail(current_app)
-                s = URLSafeTimedSerializer(current_app.config.get["SECRET_KEY"])
+                s = URLSafeTimedSerializer(current_app.config.get("SECRET_KEY"))
                 token = s.dumps(email, salt="email-confirm")
                 email_msg = Message(
                     "Confirm Email for appointment webapp",
-                    sender=current_app.config.get["MAIL_USERNAME"],
-                    recipients=[current_app.config.get["MAIL_USERNAME"]],
+                    sender=current_app.config.get("MAIL_USERNAME"),
+                    recipients=[current_app.config.get("MAIL_USERNAME")],
                 )
 
                 link = url_for("auth.confirm_email", token=token, _external=True)
@@ -128,8 +128,8 @@ def signup():
 
 @auth.route("/confirm_email/<token>")
 def confirm_email(token):
-    s = URLSafeTimedSerializer(current_app.config.get["SECRET_KEY"])
-    config_expire_time = current_app.config.get["ACCOUNT_EXPIRE_VERIFY_TIME"]
+    s = URLSafeTimedSerializer(current_app.config.get("SECRET_KEY"))
+    config_expire_time = int(current_app.config.get("ACCOUNT_EXPIRE_VERIFY_TIME"))
     try:
         email = s.loads(token, salt="email-confirm", max_age=config_expire_time)
         user = User.query.filter_by(email=email).first()
