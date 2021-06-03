@@ -7,8 +7,9 @@ $(function() {
         }
         let service =serviceText.split(' ')[1].replace('$', '')
         
-        const sum = parseFloat(service) + parseFloat(tip).toFixed(2);
+        const sum = parseFloat(service) + parseFloat(tip);
+        console.log("sum: " + sum + " services: " + service + " tip: " + tip)
         $('#tip').val(tip);
-        $('#total').val(sum);
+        $('#total').val(sum.toFixed(2));
     });
 });

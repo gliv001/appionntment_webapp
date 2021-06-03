@@ -151,11 +151,7 @@ def employee_home():
             except Exception as error:
                 print(error)
                 flash("There was an issue adding a new employee", category="error")
-        return render_template(
-            "view/employees.jinja2",
-            form=form,
-            user=current_user,
-        )
+
     e = Employees.query.order_by(Employees.id).all()
     return render_template(
         "view/employees.jinja2",
@@ -177,15 +173,10 @@ def employee_update(id):
             employee.password = form.password.data
             try:
                 db.session.commit()
+                return redirect("/employees")
             except Exception as error:
                 print(error)
                 flash("There was an issue updating an employee", category="error")
-        return render_template(
-            "view/employee_update.jinja2",
-            form=form,
-            employee=employee,
-            user=current_user,
-        )
 
     return render_template(
         "view/employee_update.jinja2",
@@ -223,7 +214,6 @@ def service_home():
             except Exception as error:
                 print(error)
                 flash("There was an issue adding a new service", category="error")
-        return redirect("/services")
 
     s = Service.query.order_by(Service.id).all()
     return render_template(
