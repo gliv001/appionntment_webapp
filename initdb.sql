@@ -4,8 +4,7 @@ CREATE TABLE user_level (
 	id INTEGER NOT NULL,
 	level INTEGER,
 	name VARCHAR(64),
-	PRIMARY KEY (id),
-	UNIQUE (level)
+	PRIMARY KEY (id)
 );
 CREATE TABLE service (
 	id INTEGER NOT NULL,
