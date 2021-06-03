@@ -4,14 +4,28 @@ from flask_login import LoginManager
 from os import path
 from datetime import datetime
 import subprocess
-import sys
+from os import environ
 
 db = SQLAlchemy()
 
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_pyfile("../config.cfg")
+    app.config.update(
+        MAIL_SERVER=environ["MAIL_SERVER"],
+        MAIL_USERNAME=environ["MAIL_USERNAME"],
+        MAIL_PASSWORD=environ["MAIL_PASSWORD"],
+        MAIL_PORT=environ["MAIL_PORT"],
+        MAIL_USE_SSL=environ["MAIL_USE_SSL"],
+        MAIL_USE_TSL=environ["MAIL_USE_TSL"],
+        DB_NAME=environ["DB_NAME"],
+        SECRET_KEY=environ["SECRET_KEY"],
+        SQLALCHEMY_DATABASE_URI=environ["SQLALCHEMY_DATABASE_URI"],
+        SQLALCHEMY_TRACK_MODIFICATIONS=environ["SQLALCHEMY_TRACK_MODIFICATIONS"],
+        ACCOUNT_EXPIRE_VERIFY_TIME=environ["ACCOUNT_EXPIRE_VERIFY_TIME"],
+        ADMIN_EMAIL=environ["ADMIN_EMAIL"],
+        ADMIN_PASS=environ["ADMIN_PASS"],
+    )
 
     db.init_app(app)
 
@@ -21,7 +35,7 @@ def create_app():
     app.register_blueprint(view, url_prefix="/")
     app.register_blueprint(auth, url_prefix="/")
 
-    dbpath = "website/" + app.config.get("DB_NAME")
+    dbpath = "website/" + environ["DB_NAME"]
     if not path.exists(dbpath):
         create_database(dbpath)
         init_database(app)
@@ -77,8 +91,8 @@ def init_database(app):
             raise (e)
 
         # create admin user if exists
-        email = app.config.get("ADMIN_EMAIL")
-        passwd = app.config.get("ADMIN_PASS")
+        email = environ["ADMIN_EMAIL"]
+        passwd = environ["ADMIN_PASS"]
         if email != "" and passwd != "":
             from .models import User
             from werkzeug.security import generate_password_hash
