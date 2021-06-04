@@ -50,8 +50,3 @@ class Appointment(db.Model):
     __table_args__ = (
         UniqueConstraint("employeeId", "apptDateTime", name="_employee_appt_uc"),
     )
-
-
-class AppointmentTimes(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    timeslot = db.Column(db.DateTime)

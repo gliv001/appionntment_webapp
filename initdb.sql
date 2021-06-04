@@ -12,11 +12,6 @@ CREATE TABLE service (
 	price NUMERIC(6, 2),
 	PRIMARY KEY (id)
 );
-CREATE TABLE appointment_times (
-	id INTEGER NOT NULL,
-	timeslot DATETIME,
-	PRIMARY KEY (id)
-);
 CREATE TABLE user (
 	id INTEGER NOT NULL,
 	"userLevelId" INTEGER,

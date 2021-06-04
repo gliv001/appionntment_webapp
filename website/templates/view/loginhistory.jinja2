@@ -1,0 +1,38 @@
+{% extends "base.jinja2" %}
+{% block styles %}
+    <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/forms.css') }}"
+            type="text/css"
+    />
+{% endblock %}
+
+{% block head %}<title>Employees Page</title>{% endblock %}
+
+{% block content %}
+    <div class="content">
+    <h1 style="text-align: center">Login History</h1>
+    {% if logins | length < 1 %}
+    <h4 style="text-align: center">There are no logins</h4>
+    {% else %}
+    <table>
+        <tr>
+        <th>ID</th>
+        <th>UserID</th>
+        <th>Email</th>
+        <th>Status</th>
+        <th>Logintime</th>
+        </tr>
+        {% for l in logins %}
+        <tr>
+        <td>{{l.id}}</td>
+        <td>{{l.userId}}</td>
+        <td>{{l.email}}</td>
+        <td>{{l.status}}</td>
+        <td>{{l.loginTime}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+</div>
+{% endblock %}

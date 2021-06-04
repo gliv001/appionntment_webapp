@@ -1,7 +1,7 @@
 from website.forms import AppointmentForm, EmployeeForm, ServiceForm
 from flask import Blueprint, render_template, request, redirect, flash
 from flask.helpers import url_for
-from .models import Appointment, Employees, Service, User, UserLevel, db
+from .models import Appointment, Employees, LoginHistory, Service, User, UserLevel, db
 from datetime import datetime
 from flask_login import login_required, current_user
 from werkzeug.security import generate_password_hash
@@ -269,3 +269,14 @@ def service_delete(id):
         print(error)
         flash("There was an issue deleting an service", category="error")
     return redirect("/services")
+
+
+@view.route("/loginhistory")
+@login_required
+def login_history():
+    if current_user.userLevelId > 1:
+        flash("Access denied: user privileges too low", category="error")
+        return redirect("/")
+
+    logins = LoginHistory.query.order_by(LoginHistory.id).all()
+    return render_template("view/loginhistory.jinja2", logins=logins, user=current_user)

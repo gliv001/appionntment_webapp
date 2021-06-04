@@ -64,29 +64,14 @@ def init_database(app):
 
     with app.app_context():
         userlevels = []
-        userlevels.append(UserLevel(level=1, name="admin"))
-        userlevels.append(UserLevel(level=2, name="manager"))
-        userlevels.append(UserLevel(level=3, name="employee"))
+        userlevels.append(UserLevel(level=1, name="Admin"))
+        userlevels.append(UserLevel(level=2, name="Manager"))
+        userlevels.append(UserLevel(level=3, name="Employee"))
         strptime = datetime.strptime
-        timeslots = []
-        timeslots.append(
-            AppointmentTimes(timeslot=strptime("2021-06-01 12:00", "%Y-%m-%d %H:%M"))
-        )
-        timeslots.append(
-            AppointmentTimes(timeslot=strptime("2021-06-01 13:00", "%Y-%m-%d %H:%M"))
-        )
-        timeslots.append(
-            AppointmentTimes(timeslot=strptime("2021-06-01 14:00", "%Y-%m-%d %H:%M"))
-        )
         try:
             for userlevel in userlevels:
                 db.session.add(userlevel)
-
-            for timeslot in timeslots:
-                db.session.add(timeslot)
-
             db.session.commit()
-            print("Database Initialized")
         except Exception as e:
             raise (e)
 
