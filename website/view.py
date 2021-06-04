@@ -1,7 +1,7 @@
 from website.forms import AppointmentForm, EmployeeForm, ServiceForm
 from flask import Blueprint, render_template, request, redirect, flash
 from flask.helpers import url_for
-from .models import Appointment, Employees, Service, User, db
+from .models import Appointment, Employees, Service, User, UserLevel, db
 from datetime import datetime
 from flask_login import login_required, current_user
 from werkzeug.security import generate_password_hash
@@ -132,14 +132,18 @@ def appointment_delete(id):
 @view.route("/employees", methods=["POST", "GET"])
 @login_required
 def employee_home():
+    if current_user.userLevelId >= 3:
+        flash("Access denied: user privileges too low", category="error")
+        return redirect("/")
     form = EmployeeForm()
     if request.method == "POST":
         if form.validate_on_submit():
             name = form.name.data
             email = form.email.data
             password = form.password.data
+            userLevelId = form.employee_type.data
             new_employee = User(
-                userLevelId=3,
+                userLevelId=userLevelId,
                 name=name,
                 email=email,
                 password=generate_password_hash(password, "sha256"),
@@ -148,15 +152,19 @@ def employee_home():
             try:
                 db.session.add(new_employee)
                 db.session.commit()
+                flash("New employee created!", category="success")
+                return redirect("employees")
             except Exception as error:
                 print(error)
                 flash("There was an issue adding a new employee", category="error")
 
-    e = Employees.query.order_by(Employees.id).all()
+    userLevels = UserLevel.query.filter(UserLevel.level >= 2)
+    form.employee_type.choices = [(l.level, l.name) for l in userLevels]
+    employee = Employees.query.order_by(Employees.id).all()
     return render_template(
         "view/employees.jinja2",
         form=form,
-        employees=e,
+        employees=employee,
         user=current_user,
     )
 
@@ -170,7 +178,7 @@ def employee_update(id):
         if form.validate_on_submit():
             employee.name = form.name.data
             employee.email = form.email.data
-            employee.password = form.password.data
+            employee.password = generate_password_hash(form.password.data, "sha256")
             try:
                 db.session.commit()
                 return redirect("/employees")
@@ -211,6 +219,8 @@ def service_home():
             try:
                 db.session.add(new_service)
                 db.session.commit()
+                flash("New service created!", category="success")
+                return redirect("services")
             except Exception as error:
                 print(error)
                 flash("There was an issue adding a new service", category="error")
