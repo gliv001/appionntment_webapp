@@ -93,10 +93,10 @@ def init_database(app):
         # create admin user if exists
         email = app.config.get("ADMIN_EMAIL")
         passwd = app.config.get("ADMIN_PASS")
-        if email != "" and passwd != "":
-            from .models import User
-            from werkzeug.security import generate_password_hash
+        from .models import User
+        from werkzeug.security import generate_password_hash
 
+        if email != "" and passwd != "" and db.session.query(User).count() == 0:
             admin = User(
                 userLevelId=1,
                 email=email,
