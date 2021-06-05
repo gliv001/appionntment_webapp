@@ -60,7 +60,6 @@ def create_database(dbpath):
 
 def init_database(app):
     from .models import UserLevel
-    from .models import AppointmentTimes
 
     with app.app_context():
         userlevels = []

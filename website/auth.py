@@ -90,13 +90,13 @@ def signup():
                 s = URLSafeTimedSerializer(current_app.config.get("SECRET_KEY"))
                 token = s.dumps(email, salt="email-confirm")
                 email_msg = Message(
-                    "Confirm Email for appointment webapp",
+                    "Confirm sign up request for appointment webapp",
                     sender=current_app.config.get("MAIL_USERNAME"),
                     recipients=[current_app.config.get("MAIL_USERNAME")],
                 )
 
                 link = url_for("auth.confirm_email", token=token, _external=True)
-                email_msg.body = f"{name} is trying to create an account, please click on link for verification: \n{link}"
+                email_msg.body = f"{name}, email: {email} is trying to create an account, please click on link for verification: \n{link}"
 
                 mail.send(email_msg)
 
@@ -110,7 +110,13 @@ def signup():
                     db.session.add(new_user)
                     db.session.add(LoginHistory(email=email, status="signup"))
                     db.session.commit()
-                    flash("Account Pending Verification", category="success")
+                    expire_time = (
+                        int(current_app.config.get("ACCOUNT_EXPIRE_VERIFY_TIME")) / 60
+                    )
+                    flash(
+                        f"Account Pending Verification, token will expire in {expire_time} minute(s)",
+                        category="success",
+                    )
                     return render_template(
                         "auth/login.jinja2", form=form, user=current_user
                     )
