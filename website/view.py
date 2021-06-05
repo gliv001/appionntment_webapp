@@ -5,6 +5,7 @@ from .models import Appointment, Employees, LoginHistory, Service, User, UserLev
 from datetime import datetime
 from flask_login import login_required, current_user
 from werkzeug.security import generate_password_hash
+import simplejson as json
 
 view = Blueprint("view", __name__)
 
@@ -60,6 +61,7 @@ def appointment_home():
         .select_from(Appointment)
         .join(Service)
         .join(Employees)
+        .filter(Appointment.employeeId == current_user.id)
         .all()
     )
 
@@ -69,6 +71,52 @@ def appointment_home():
         appointments=appointments,
         user=current_user,
     )
+
+
+@view.route("/appointments/table", methods=["GET"])
+@login_required
+def appointment_table():
+    if request.args.get("viewall", default=0, type=int) == 0:
+        results = (
+            db.session.query(
+                Appointment.id,
+                Appointment.client,
+                Appointment.serviceId,
+                Appointment.employeeId,
+                Appointment.apptDateTime,
+                Appointment.tips,
+                Appointment.total,
+                Service.name.label("service"),
+                Employees.name.label("employee"),
+            )
+            .select_from(Appointment)
+            .join(Service)
+            .join(Employees)
+            .filter(Appointment.employeeId == current_user.id)
+            .all()
+        )
+    else:
+        results = (
+            db.session.query(
+                Appointment.id,
+                Appointment.client,
+                Appointment.serviceId,
+                Appointment.employeeId,
+                Appointment.apptDateTime,
+                Appointment.tips,
+                Appointment.total,
+                Service.name.label("service"),
+                Employees.name.label("employee"),
+            )
+            .select_from(Appointment)
+            .join(Service)
+            .join(Employees)
+            .all()
+        )
+
+    appointments_dict_list = [r._asdict() for r in results]
+
+    return json.dumps(appointments_dict_list, default=str)
 
 
 @view.route("/appointments/update/<int:id>", methods=["POST", "GET"])
@@ -278,5 +326,5 @@ def login_history():
         flash("Access denied: user privileges too low", category="error")
         return redirect("/")
 
-    logins = LoginHistory.query.order_by(LoginHistory.id).all()
+    logins = LoginHistory.query.order_by(LoginHistory.id.desc()).all()
     return render_template("view/loginhistory.jinja2", logins=logins, user=current_user)
