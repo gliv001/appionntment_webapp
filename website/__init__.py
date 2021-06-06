@@ -95,4 +95,5 @@ def init_database(app):
                 db.session.add(admin)
                 db.session.commit()
             except Exception as e:
-                raise (e)
+                print(e)
+                print("adding admin account failed")

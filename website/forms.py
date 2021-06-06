@@ -58,7 +58,7 @@ class AppointmentForm(FlaskForm):
         render_kw={"step": "1800"},
     )
     tip = DecimalField("Tip", validators=[NumberRange(min=0)])
-    total = DecimalField("Total", render_kw={"disabled": "disabled"}, default=0)
+    total = DecimalField("Total", render_kw={"readonly": "readonly"}, default=0)
     add = SubmitField("New appointment")
 
 
