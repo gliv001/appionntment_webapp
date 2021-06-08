@@ -2,7 +2,7 @@ from flask_mail import Message, Mail
 from itsdangerous.exc import SignatureExpired
 from itsdangerous.url_safe import URLSafeTimedSerializer
 from website.forms import LoginForm, SignUpForm
-from website.models import LoginHistory, User
+from website.models import LoginHistory, Users
 from flask import (
     Blueprint,
     render_template,
@@ -27,7 +27,7 @@ def login():
         email = request.form["email"]
         password = request.form["password"]
         log = LoginHistory(email=email)
-        user = User.query.filter_by(email=email).first()
+        user = Users.query.filter_by(email=email).first()
         if user:
             if user.verified == True:
                 if check_password_hash(user.password, password):
@@ -67,8 +67,8 @@ def signup():
     # clean up all expired users
     config_expire_time = int(current_app.config.get("ACCOUNT_EXPIRE_VERIFY_TIME"))
     expired_time = datetime.now() - timedelta(0, config_expire_time)
-    expired_accounts = User.query.filter(
-        User.creationDate <= expired_time, User.verified == False
+    expired_accounts = Users.query.filter(
+        Users.creationDate <= expired_time, Users.verified == False
     ).all()
     try:
         for account in expired_accounts:
@@ -82,7 +82,7 @@ def signup():
             email = request.form["email"]
             name = request.form["name"]
             password = request.form["password"]
-            user_exists = User.query.filter_by(email=email).first()
+            user_exists = Users.query.filter_by(email=email).first()
             if user_exists:
                 flash("Email already exists!", category="error")
             else:
@@ -100,7 +100,7 @@ def signup():
 
                 mail.send(email_msg)
 
-                new_user = User(
+                new_user = Users(
                     name=name,
                     email=email,
                     userLevelId=3,
@@ -125,7 +125,7 @@ def signup():
                     print(e)
         return render_template("auth/signup.jinja2", form=form, user=current_user)
     else:  # request.method == "GET"
-        unverified_users = User.query.filter_by(verified=False).all()
+        unverified_users = Users.query.filter_by(verified=False).all()
         if len(unverified_users) > 3:
             flash("Too many unverified accounts pending, contact admin")
             return redirect(url_for("auth.login"))
@@ -138,7 +138,7 @@ def confirm_email(token):
     config_expire_time = int(current_app.config.get("ACCOUNT_EXPIRE_VERIFY_TIME"))
     try:
         email = s.loads(token, salt="email-confirm", max_age=config_expire_time)
-        user = User.query.filter_by(email=email).first()
+        user = Users.query.filter_by(email=email).first()
         if user:
             user.verified = True
             db.session.commit()

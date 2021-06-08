@@ -1,7 +1,7 @@
 from website.forms import AppointmentForm, EmployeeForm, ServiceForm
 from flask import Blueprint, render_template, request, redirect, flash
 from flask.helpers import url_for
-from .models import Appointment, Employees, LoginHistory, Service, User, UserLevel, db
+from .models import Appointment, Employees, LoginHistory, Service, Users, UserLevel, db
 from datetime import datetime
 from flask_login import login_required, current_user
 from werkzeug.security import generate_password_hash
@@ -190,7 +190,7 @@ def employee_home():
             email = form.email.data
             password = form.password.data
             userLevelId = form.employee_type.data
-            new_employee = User(
+            new_employee = Users(
                 userLevelId=userLevelId,
                 name=name,
                 email=email,
@@ -221,7 +221,7 @@ def employee_home():
 @login_required
 def employee_update(id):
     form = EmployeeForm()
-    employee = User.query.get_or_404(id)
+    employee = Users.query.get_or_404(id)
     if request.method == "POST":
         if form.validate_on_submit():
             employee.name = form.name.data
@@ -245,7 +245,7 @@ def employee_update(id):
 @view.route("/employees/delete/<int:id>")
 @login_required
 def employee_delete(id):
-    selected_employee = User.query.get_or_404(id)
+    selected_employee = Users.query.get_or_404(id)
     try:
         db.session.delete(selected_employee)
         db.session.commit()

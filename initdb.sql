@@ -12,7 +12,7 @@ CREATE TABLE service (
 	price NUMERIC(6, 2),
 	PRIMARY KEY (id)
 );
-CREATE TABLE user (
+CREATE TABLE Users (
 	id INTEGER NOT NULL,
 	"userLevelId" INTEGER,
 	email VARCHAR(64) NOT NULL,
@@ -44,12 +44,12 @@ CREATE TABLE login_history (
 	status VARCHAR(64) NOT NULL,
 	"loginTime" DATETIME,
 	PRIMARY KEY (id),
-	FOREIGN KEY("userId") REFERENCES user (id)
+	FOREIGN KEY("userId") REFERENCES Users (id)
 );
 CREATE VIEW Employees AS
 SELECT ID,
 	Name
-FROM User
+FROM Users
 WHERE userLevelId = 2
 	OR userLevelId = 3;
 COMMIT;

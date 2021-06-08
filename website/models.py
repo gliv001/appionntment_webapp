@@ -10,7 +10,7 @@ class UserLevel(db.Model):
     name = db.Column(db.String(64))
 
 
-class User(db.Model, UserMixin):
+class Users(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     userLevelId = db.Column(db.Integer, ForeignKey(UserLevel.level))
     email = db.Column(db.String(64), nullable=False, unique=True)
@@ -22,7 +22,7 @@ class User(db.Model, UserMixin):
 
 class LoginHistory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    userId = db.Column(db.Integer, ForeignKey(User.id))
+    userId = db.Column(db.Integer, ForeignKey(Users.id))
     email = db.Column(db.String(64), nullable=False)
     status = db.Column(db.String(64), nullable=False)
     loginTime = db.Column(db.DateTime, default=datetime.now())

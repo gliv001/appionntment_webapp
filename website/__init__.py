@@ -44,11 +44,11 @@ def create_app():
     login_manager.login_view = "auth.login"
     login_manager.init_app(app)
 
-    from .models import User
+    from .models import Users
 
     @login_manager.user_loader
     def load_user(id):
-        return User.query.get(int(id))
+        return Users.query.get(int(id))
 
     return app
 
@@ -78,10 +78,10 @@ def init_database(app):
         email = app.config.get("ADMIN_EMAIL")
         passwd = app.config.get("ADMIN_PASS")
         if email != "" and passwd != "":
-            from .models import User
+            from .models import Users
             from werkzeug.security import generate_password_hash
 
-            admin = User(
+            admin = Users(
                 userLevelId=1,
                 email=email,
                 password=generate_password_hash(passwd, "sha256"),
@@ -89,7 +89,7 @@ def init_database(app):
                 verified=True,
             )
             try:
-                User.query.delete()
+                Users.query.delete()
                 db.session.commit()
 
                 db.session.add(admin)
