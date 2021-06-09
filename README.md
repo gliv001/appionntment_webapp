@@ -4,7 +4,15 @@ Appointment webapp for learning to create a frontend page that allows the user t
 
 # Setup
 
-## Environment
+## Requirements
+
+Python 3.9.4
+
+virtualenv, if not installed run below command to install:
+
+`$ pip install virtualenv`
+
+## Installation
 
 Make sure to setup the virtual environment and install the `requirements.txt`
 
@@ -16,42 +24,35 @@ To do this follow the steps below:
 
 `$ pip install -r requirements.txt`
 
+## Configuration
+
+Setup a configuration file `.envrc` that will add environment variables that will be used in the webapp, take a look at `.envrc_dummy` for an example.
+
+I used `direnv` ([link](https://direnv.net/)) to load the `.envrc` to the environment when in the webapp root directory, example with direnv:
+
+```
+$ cd ~/path/to/appointment_webapp/
+direnv: loading ~/path/to/appointment_webapp/.envrc
+direnv: export +ACCOUNT_EXPIRE_VERIFY_TIME +ADMIN_EMAIL +ADMIN_PASS +DB_NAME +MAIL_PASSWORD +MAIL_PORT +MAIL_SERVER +MAIL_USERNAME +MAIL_USE_SSL +MAIL_USE_TSL +SECRET_KEY +SQLALCHEMY_DATABASE_URI +SQLALCHEMY_TRACK_MODIFICATIONS
+```
+
+## Email Setup
+
+Setup an email to allow you to send emails, then add your email configurations in the `.envrc`:
+
+```
+export MAIL_SERVER=smtp.gmail.com
+export MAIL_USERNAME=dummy@gmail.com
+export MAIL_PASSWORD=dummy_password
+export MAIL_PORT=465
+export MAIL_USE_SSL=True
+export MAIL_USE_TSL=False
+```
+
 # Run Appointment Webapp
 
-Once `requirements.txt` is installed, run the webapp:
+run the webapp:
+
+`$ cd ~/path/to/appointment_webapp`
 
 `$ python main.py`
-
-# Database Information
-
-### Appointment Table
-
-| AppointmentID | ClientName  | ServiceID | EmployeeID | Appointment | Tips          | Total         |
-| ------------- | ----------- | --------- | ---------- | ----------- | ------------- | ------------- |
-| int           | varchar(64) | int       | int        | datetime    | decimal(10,2) | decimal(10,2) |
-
-### Employee Table
-
-| EmployeeID | Name        |
-| ---------- | ----------- |
-| int        | varchar(64) |
-
-### Service Table
-
-| ServiceID | Name        | Pricing       |
-| --------- | ----------- | ------------- |
-| int       | varchar(64) | decimal(10,2) |
-
-## Frontend pages
-
-### Appointment
-
-TODO
-
-### Employees
-
-TODO
-
-### Services
-
-TODO
