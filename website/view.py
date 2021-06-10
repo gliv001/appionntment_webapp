@@ -1,7 +1,15 @@
 from website.forms import AppointmentForm, EmployeeForm, ServiceForm
 from flask import Blueprint, render_template, request, redirect, flash
 from flask.helpers import url_for
-from .models import Appointment, Employees, LoginHistory, Service, Users, UserLevel, db
+from .models import (
+    Appointments,
+    Employees,
+    LoginHistory,
+    Services,
+    ApptUsers,
+    UserLevel,
+    db,
+)
 from datetime import datetime
 from flask_login import login_required, current_user
 from werkzeug.security import generate_password_hash
@@ -26,11 +34,11 @@ def appointment_home():
             total = form.total.data
             if tip == "":
                 tip = 0
-            new_appt = Appointment(
+            new_appt = Appointments(
                 client=client,
-                serviceId=service,
-                employeeId=employee,
-                apptDateTime=datetime.strptime(
+                serviceid=service,
+                employeeid=employee,
+                apptdatetime=datetime.strptime(
                     f"{appt_date} {appt_time}", "%Y-%m-%d %H:%M:%S"
                 ),
                 tips=tip,
@@ -45,23 +53,23 @@ def appointment_home():
         return redirect("/appointments")
 
     employeeList = Employees.query.all()
-    serviceList = Service.query.all()
-    form.employee.choices = [(e.id, e.name) for e in employeeList]
-    form.service.choices = [(s.id, f"{s.name} ${s.price}") for s in serviceList]
+    serviceList = Services.query.all()
+    form.employee.choices = [(e.id, e.uname) for e in employeeList]
+    form.service.choices = [(s.id, f"{s.sname} ${s.price}") for s in serviceList]
 
     if len(serviceList) < 1:
         flash("There are no services, Please add services first.", category="error")
 
     appointments = (
         db.session.query(
-            Appointment,
-            Service.name.label("service"),
-            Employees.name.label("employee"),
+            Appointments,
+            Services.sname.label("service"),
+            Employees.uname.label("employee"),
         )
-        .select_from(Appointment)
-        .join(Service)
+        .select_from(Appointments)
+        .join(Services)
         .join(Employees)
-        .filter(Appointment.employeeId == current_user.id)
+        .filter(Appointments.employeeid == current_user.id)
         .all()
     )
 
@@ -79,37 +87,37 @@ def appointment_table():
     if request.args.get("viewall", default=0, type=int) == 0:
         results = (
             db.session.query(
-                Appointment.id,
-                Appointment.client,
-                Appointment.serviceId,
-                Appointment.employeeId,
-                Appointment.apptDateTime,
-                Appointment.tips,
-                Appointment.total,
-                Service.name.label("service"),
-                Employees.name.label("employee"),
+                Appointments.id,
+                Appointments.client,
+                Appointments.serviceid,
+                Appointments.employeeid,
+                Appointments.apptdatetime,
+                Appointments.tips,
+                Appointments.total,
+                Services.sname.label("service"),
+                Employees.uname.label("employee"),
             )
-            .select_from(Appointment)
-            .join(Service)
+            .select_from(Appointments)
+            .join(Services)
             .join(Employees)
-            .filter(Appointment.employeeId == current_user.id)
+            .filter(Appointments.employeeid == current_user.id)
             .all()
         )
     else:
         results = (
             db.session.query(
-                Appointment.id,
-                Appointment.client,
-                Appointment.serviceId,
-                Appointment.employeeId,
-                Appointment.apptDateTime,
-                Appointment.tips,
-                Appointment.total,
-                Service.name.label("service"),
-                Employees.name.label("employee"),
+                Appointments.id,
+                Appointments.client,
+                Appointments.serviceid,
+                Appointments.employeeid,
+                Appointments.apptdatetime,
+                Appointments.tips,
+                Appointments.total,
+                Services.sname.label("service"),
+                Employees.uname.label("employee"),
             )
-            .select_from(Appointment)
-            .join(Service)
+            .select_from(Appointments)
+            .join(Services)
             .join(Employees)
             .all()
         )
@@ -123,13 +131,13 @@ def appointment_table():
 @login_required
 def appointment_update(id):
     form = AppointmentForm()
-    select_appointment = Appointment.query.get_or_404(id)
+    select_appointment = Appointments.query.get_or_404(id)
     if request.method == "POST":
         if form.validate_on_submit():
             select_appointment.client = form.client.data
             select_appointment.service = form.service.data
             select_appointment.employee = form.employee.data
-            select_appointment.apptDateTime = datetime.strptime(
+            select_appointment.apptdatetime = datetime.strptime(
                 f"{form.appt_date.data} {form.appt_time.data}", "%Y-%m-%d %H:%M:%S"
             )
             select_appointment.tips = form.tip.data
@@ -141,15 +149,15 @@ def appointment_update(id):
         return redirect("/appointments")
 
     employeeList = Employees.query.all()
-    serviceList = Service.query.all()
-    form.employee.choices = [(e.id, e.name) for e in employeeList]
-    form.service.choices = [(s.id, f"{s.name} ${s.price}") for s in serviceList]
+    serviceList = Services.query.all()
+    form.employee.choices = [(e.id, e.uname) for e in employeeList]
+    form.service.choices = [(s.id, f"{s.sname} ${s.price}") for s in serviceList]
 
     form.client.default = select_appointment.client
-    form.service.default = select_appointment.serviceId
-    form.employee.default = select_appointment.employeeId
-    date = select_appointment.apptDateTime.date()
-    time = select_appointment.apptDateTime.time()
+    form.service.default = select_appointment.serviceid
+    form.employee.default = select_appointment.employeeid
+    date = select_appointment.apptdatetime.date()
+    time = select_appointment.apptdatetime.time()
     form.appt_date.default = date
     form.appt_time.default = time
     form.tip.default = select_appointment.tips
@@ -167,7 +175,7 @@ def appointment_update(id):
 @view.route("/appointments/delete/<int:id>")
 @login_required
 def appointment_delete(id):
-    select_appointment = Appointment.query.get_or_404(id)
+    select_appointment = Appointments.query.get_or_404(id)
     try:
         db.session.delete(select_appointment)
         db.session.commit()
@@ -180,7 +188,7 @@ def appointment_delete(id):
 @view.route("/employees", methods=["POST", "GET"])
 @login_required
 def employee_home():
-    if current_user.userLevelId >= 3:
+    if current_user.userlevelid >= 3:
         flash("Access denied: user privileges too low", category="error")
         return redirect("/")
     form = EmployeeForm()
@@ -189,12 +197,12 @@ def employee_home():
             name = form.name.data
             email = form.email.data
             password = form.password.data
-            userLevelId = form.employee_type.data
-            new_employee = Users(
-                userLevelId=userLevelId,
-                name=name,
+            userlevelid = form.employee_type.data
+            new_employee = ApptUsers(
+                userlevelid=userlevelid,
+                uname=name,
                 email=email,
-                password=generate_password_hash(password, "sha256"),
+                upassword=generate_password_hash(password, "sha256"),
                 verified=True,
             )
             try:
@@ -206,8 +214,8 @@ def employee_home():
                 print(error)
                 flash("There was an issue adding a new employee", category="error")
 
-    userLevels = UserLevel.query.filter(UserLevel.level >= 2)
-    form.employee_type.choices = [(l.level, l.name) for l in userLevels]
+    userLevels = UserLevel.query.filter(UserLevel.ulevel >= 2)
+    form.employee_type.choices = [(l.ulevel, l.uname) for l in userLevels]
     employee = Employees.query.order_by(Employees.id).all()
     return render_template(
         "view/employees.jinja2",
@@ -221,12 +229,12 @@ def employee_home():
 @login_required
 def employee_update(id):
     form = EmployeeForm()
-    employee = Users.query.get_or_404(id)
+    employee = ApptUsers.query.get_or_404(id)
     if request.method == "POST":
         if form.validate_on_submit():
             employee.name = form.name.data
             employee.email = form.email.data
-            employee.password = generate_password_hash(form.password.data, "sha256")
+            employee.upassword = generate_password_hash(form.password.data, "sha256")
             try:
                 db.session.commit()
                 return redirect("/employees")
@@ -245,7 +253,7 @@ def employee_update(id):
 @view.route("/employees/delete/<int:id>")
 @login_required
 def employee_delete(id):
-    selected_employee = Users.query.get_or_404(id)
+    selected_employee = ApptUsers.query.get_or_404(id)
     try:
         db.session.delete(selected_employee)
         db.session.commit()
@@ -263,7 +271,7 @@ def service_home():
         if form.validate_on_submit():
             service_name = form.name.data
             service_price = form.price.data
-            new_service = Service(name=service_name, price=service_price)
+            new_service = Services(sname=service_name, price=service_price)
             try:
                 db.session.add(new_service)
                 db.session.commit()
@@ -273,7 +281,7 @@ def service_home():
                 print(error)
                 flash("There was an issue adding a new service", category="error")
 
-    s = Service.query.order_by(Service.id).all()
+    s = Services.query.order_by(Services.id).all()
     return render_template(
         "view/services.jinja2",
         form=form,
@@ -286,10 +294,10 @@ def service_home():
 @login_required
 def service_update(id):
     form = ServiceForm()
-    selected_service = Service.query.get_or_404(id)
+    selected_service = Services.query.get_or_404(id)
     if request.method == "POST":
         if form.validate_on_submit():
-            selected_service.name = form.name.data
+            selected_service.sname = form.name.data
             selected_service.price = form.price.data
             try:
                 db.session.commit()
@@ -309,7 +317,7 @@ def service_update(id):
 @view.route("/services/delete/<int:id>")
 @login_required
 def service_delete(id):
-    selected_service = Service.query.get_or_404(id)
+    selected_service = Services.query.get_or_404(id)
     try:
         db.session.delete(selected_service)
         db.session.commit()
@@ -322,7 +330,7 @@ def service_delete(id):
 @view.route("/loginhistory")
 @login_required
 def login_history():
-    if current_user.userLevelId > 1:
+    if current_user.userlevelid > 1:
         flash("Access denied: user privileges too low", category="error")
         return redirect("/")
 

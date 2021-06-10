@@ -6,7 +6,7 @@
 | --- | ----------- | --------- | ---------- | ------------- | ------------- | ------------- |
 | int | varchar(64) | int       | int        | datetime      | decimal(10,2) | decimal(10,2) |
 
-### Users Table
+### ApptUsers Table
 
 | id  | Userlevelid | Email       | Password     | Name        | Verified | Creationdate |
 | --- | ----------- | ----------- | ------------ | ----------- | -------- | ------------ |

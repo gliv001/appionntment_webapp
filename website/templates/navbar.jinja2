@@ -14,18 +14,18 @@
           <li class="nav-item">
             <a class="nav-link" href="/services">Services</a>
           </li>
-          {% if user.userLevelId <= 2 %}
+          {% if user.userlevelid <= 2 %}
           <li class="nav-item">
             <a class="nav-link" href="/employees">Employees</a>
           </li>
           {% endif %}
-          {% if user.userLevelId == 1 %}
+          {% if user.userlevelid == 1 %}
           <li class="nav-item">
             <a class="nav-link" href="/loginhistory">Login History</a>
           </li>
           {% endif %}
         </ul>
-        <a>User: {{user.name}}</a>
+        <a>User: {{user.uname}}</a>
         <a class="nav-link" href="/logout">Logout</a>
         {% else %}
         <ul class="navbar-nav mr-auto">

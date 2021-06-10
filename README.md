@@ -12,6 +12,16 @@ virtualenv, if not installed run below command to install:
 
 `$ pip install virtualenv`
 
+## Database
+
+Create a new postgres database then go ahead and dump the `postgresDb.sql` into that database to initialize it.
+
+`$ psql apptDb < postgresDb.sql`
+
+Also remember to set your environment variable correctly for the database
+
+`export SQLALCHEMY_DATABASE_URI=postgresql://postgres:georgeliv@test/apptDb`
+
 ## Installation
 
 Make sure to setup the virtual environment and install the `requirements.txt`
@@ -56,3 +66,7 @@ run the webapp:
 `$ cd ~/path/to/appointment_webapp`
 
 `$ python main.py`
+
+# Troubleshoot
+
+If getting issues with postgres on Mac M1 chip use this [link](https://github.com/psycopg/psycopg2/issues/1216#issuecomment-767892042)

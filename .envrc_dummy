@@ -7,7 +7,7 @@ export MAIL_USE_TSL=False
 
 export DB_NAME=database.db
 export SECRET_KEY=secret_key
-export SQLALCHEMY_DATABASE_URI=sqlite:///database.db
+export SQLALCHEMY_DATABASE_URI=postgresql://postgres:test@localhost/apptDb
 export SQLALCHEMY_TRACK_MODIFICATIONS=False
 
 export ACCOUNT_EXPIRE_VERIFY_TIME=120

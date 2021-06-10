@@ -2,7 +2,7 @@ from flask_mail import Message, Mail
 from itsdangerous.exc import SignatureExpired
 from itsdangerous.url_safe import URLSafeTimedSerializer
 from website.forms import LoginForm, SignUpForm
-from website.models import LoginHistory, Users
+from website.models import LoginHistory, ApptUsers
 from flask import (
     Blueprint,
     render_template,
@@ -27,15 +27,15 @@ def login():
         email = request.form["email"]
         password = request.form["password"]
         log = LoginHistory(email=email)
-        user = Users.query.filter_by(email=email).first()
+        user = ApptUsers.query.filter_by(email=email).first()
         if user:
             if user.verified == True:
-                if check_password_hash(user.password, password):
+                if check_password_hash(user.upassword, password):
                     flash(
-                        f"Login Success! Welcome back {user.name}", category="success"
+                        f"Login Success! Welcome back {user.uname}", category="success"
                     )
-                    log.status = "login success"
-                    log.userId = user.id
+                    log.loginstatus = "login success"
+                    log.userid = user.id
                     try:
                         db.session.add(log)
                         db.session.commit()
@@ -44,7 +44,7 @@ def login():
                     except Exception as e:
                         print(e)
         flash("Login Failed, Email/Password (or both) incorrect", category="error")
-        log.status = "login failed"
+        log.loginstatus = "login failed"
         db.session.add(log)
         db.session.commit()
         return redirect("/login")
@@ -64,11 +64,11 @@ def logout():
 @auth.route("/signup", methods=["POST", "GET"])
 def signup():
     form = SignUpForm()
-    # clean up all expired users
+    # clean up all expired ApptUsers
     config_expire_time = int(current_app.config.get("ACCOUNT_EXPIRE_VERIFY_TIME"))
     expired_time = datetime.now() - timedelta(0, config_expire_time)
-    expired_accounts = Users.query.filter(
-        Users.creationDate <= expired_time, Users.verified == False
+    expired_accounts = ApptUsers.query.filter(
+        ApptUsers.creationdate <= expired_time, ApptUsers.verified == False
     ).all()
     try:
         for account in expired_accounts:
@@ -82,7 +82,7 @@ def signup():
             email = request.form["email"]
             name = request.form["name"]
             password = request.form["password"]
-            user_exists = Users.query.filter_by(email=email).first()
+            user_exists = ApptUsers.query.filter_by(email=email).first()
             if user_exists:
                 flash("Email already exists!", category="error")
             else:
@@ -100,15 +100,15 @@ def signup():
 
                 mail.send(email_msg)
 
-                new_user = Users(
-                    name=name,
+                new_user = ApptUsers(
+                    uname=name,
                     email=email,
-                    userLevelId=3,
-                    password=generate_password_hash(password, method="sha256"),
+                    userlevelid=3,
+                    upassword=generate_password_hash(password, method="sha256"),
                 )
                 try:
                     db.session.add(new_user)
-                    db.session.add(LoginHistory(email=email, status="signup"))
+                    db.session.add(LoginHistory(email=email, loginstatus="signup"))
                     db.session.commit()
                     expire_time = (
                         int(current_app.config.get("ACCOUNT_EXPIRE_VERIFY_TIME")) / 60
@@ -125,7 +125,7 @@ def signup():
                     print(e)
         return render_template("auth/signup.jinja2", form=form, user=current_user)
     else:  # request.method == "GET"
-        unverified_users = Users.query.filter_by(verified=False).all()
+        unverified_users = ApptUsers.query.filter_by(verified=False).all()
         if len(unverified_users) > 3:
             flash("Too many unverified accounts pending, contact admin")
             return redirect(url_for("auth.login"))
@@ -138,7 +138,7 @@ def confirm_email(token):
     config_expire_time = int(current_app.config.get("ACCOUNT_EXPIRE_VERIFY_TIME"))
     try:
         email = s.loads(token, salt="email-confirm", max_age=config_expire_time)
-        user = Users.query.filter_by(email=email).first()
+        user = ApptUsers.query.filter_by(email=email).first()
         if user:
             user.verified = True
             db.session.commit()

@@ -33,7 +33,7 @@ function RegenerateAppointmentTableFromJson(json_data) {
             table_row.append($('<td>', {html: item.client}));
             table_row.append($('<td>', {html: item.service}));
             table_row.append($('<td>', {html: item.employee}));
-            table_row.append($('<td>', {html: item.apptDateTime}));
+            table_row.append($('<td>', {html: item.apptdatetime}));
             if(item.tips === 0) {
                 table_row.append($('<td>---</td>')); 
             }
