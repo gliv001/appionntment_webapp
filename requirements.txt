@@ -17,6 +17,8 @@ Jinja2==3.0.1
 MarkupSafe==2.0.1
 mypy-extensions==0.4.3
 pathspec==0.8.1
+psycopg2==2.8.6
+psycopg2-binary==2.8.6
 regex==2021.4.4
 simplejson==3.17.2
 SQLAlchemy==1.4.15
