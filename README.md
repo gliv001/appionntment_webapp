@@ -22,6 +22,50 @@ Also remember to set your environment variable correctly for the database
 
 `export SQLALCHEMY_DATABASE_URI=postgresql://postgres:georgeliv@test/apptDb`
 
+### Setup Database in Heroku
+
+`$ cd ~/path/to/appointment_webapp`
+
+check that heroku does not already have postgresql added.
+
+```
+$ heroku addons
+No add-ons for app appointment-system.
+```
+
+add heroku using heroku cli addons command
+
+```
+$ heroku addons:create heroku-postgresql:hobby-dev
+Creating heroku-postgresql:hobby-dev on ⬢ appointment-system... free
+Database has been created and is available
+ ! This database is empty. If upgrading, you can transfer
+ ! data from another database with pg:copy
+Created postgresql as DATABASE_URL
+Use heroku addons:docs heroku-postgresql to view documentation
+```
+
+add tables to the database with the below command
+
+```
+$ cat postgresDb.sql | heroku pg:psql
+--> Connecting to postgresql
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE VIEW
+```
+
+update your config vars in the heroku to your new postgresql URI
+
+```
+SQLALCHEMY_DATABASE_URI = postgresql://...
+```
+
+heroku postgresql is now setup for appointment webapp.
+
 ## Installation
 
 Make sure to setup the virtual environment and install the `requirements.txt`
